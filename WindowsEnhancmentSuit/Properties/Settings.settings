@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WindowsEnhancementSuit.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ImageSaveFormat" Type="System.Byte" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="TextApplication" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="JpegCompression" Type="System.Byte" Scope="User">
+      <Value Profile="(Default)">70</Value>
+    </Setting>
+    <Setting Name="CliboardHotkey" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">119</Value>
+    </Setting>
+    <Setting Name="TextfileHotkey" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">196692</Value>
+    </Setting>
+    <Setting Name="ShowHotkey" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">120</Value>
+    </Setting>
+    <Setting Name="ShowBrowserHistory" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">121</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
