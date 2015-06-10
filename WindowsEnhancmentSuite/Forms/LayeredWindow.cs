@@ -4,13 +4,13 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace WindowsEnhancementSuit.Forms
+namespace WindowsEnhancementSuite.Forms
 {
     public partial class LayeredWindow : Form
     {
         public LayeredWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         public void SetBitmap(Bitmap bitmap, System.Drawing.Size size)

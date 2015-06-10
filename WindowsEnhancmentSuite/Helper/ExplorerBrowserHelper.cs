@@ -7,7 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using SHDocVw;
 
-namespace WindowsEnhancementSuit.Helper
+namespace WindowsEnhancementSuite.Helper
 {
     public class ExplorerBrowserHelper
     {
@@ -18,17 +18,17 @@ namespace WindowsEnhancementSuit.Helper
 
         public ExplorerBrowserHelper()
         {
-            historyQueue = new Queue<ExplorerHistory>();
+            this.historyQueue = new Queue<ExplorerHistory>();
 
-            shellWindows = new ShellWindows();
-            shellWindows.WindowRegistered += shellWindowsOnWindowRegistered;
+            this.shellWindows = new ShellWindows();
+            this.shellWindows.WindowRegistered += this.shellWindowsOnWindowRegistered;
 
             this.registerEvent(true);
         }
 
         public void ShowExplorerHistory()
         {
-            var historyList = historyQueue.OrderByDescending(h => h.VisitDate).Select(h => h.Path).ToList();
+            var historyList = this.historyQueue.OrderByDescending(h => h.VisitDate).Select(h => h.Path).ToList();
             Application.Run(new HistoryForm(historyList));
         }
 
@@ -36,7 +36,7 @@ namespace WindowsEnhancementSuit.Helper
         {
             try
             {
-                foreach (var explorer in shellWindows.Cast<InternetExplorer>().ToList())
+                foreach (var explorer in this.shellWindows.Cast<InternetExplorer>().ToList())
                 {
                     if (explorer.FullName == null) continue;
                     if (!Path.GetFileNameWithoutExtension(explorer.FullName).ToLower().Equals("explorer")) continue;
@@ -60,14 +60,14 @@ namespace WindowsEnhancementSuit.Helper
         private void addExplorerPath(string path)
         {
             // Deduplizieren
-            historyQueue = new Queue<ExplorerHistory>(historyQueue.Where(h => h.Path != path));
+            this.historyQueue = new Queue<ExplorerHistory>(this.historyQueue.Where(h => h.Path != path));
 
-            if (historyQueue.Count >= MAX_HISTORY)
+            if (this.historyQueue.Count >= MAX_HISTORY)
             {
-                historyQueue.Dequeue();
+                this.historyQueue.Dequeue();
             }
 
-            historyQueue.Enqueue(new ExplorerHistory(path));
+            this.historyQueue.Enqueue(new ExplorerHistory(path));
         }
 
         private void shellWindowsOnWindowRegistered(int lCookie)

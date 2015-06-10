@@ -5,10 +5,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using WindowsEnhancementSuit.Extensions;
-using WindowsEnhancementSuit.Properties;
+using WindowsEnhancementSuite.Extensions;
+using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuit.Helper
+namespace WindowsEnhancementSuite.Helper
 {
     public class FileAndImageViewer
     {
@@ -89,7 +89,7 @@ namespace WindowsEnhancementSuit.Helper
 
             public WatchForm(string text)
             {
-                init();
+                this.init();
                 this.Text = "Text";
 
                 var statusStrip = new StatusStrip
@@ -150,7 +150,7 @@ namespace WindowsEnhancementSuit.Helper
 
             public WatchForm(Image image)
             {
-                init();
+                this.init();
                 this.Text = "Image";
 
                 var picturePanel = new Panel
@@ -210,7 +210,7 @@ namespace WindowsEnhancementSuit.Helper
 
             public WatchForm(StringCollection fileList)
             {
-                init();
+                this.init();
                 this.Text = "FileList";
 
                 var imageList = new ImageList
@@ -246,7 +246,7 @@ namespace WindowsEnhancementSuit.Helper
                             return;
                         }
 
-                        setNode(currentNode, imageList);
+                        this.setNode(currentNode, imageList);
 
                         if (File.GetAttributes(currentNode.Name).HasFlag(FileAttributes.Directory))
                         {
@@ -257,7 +257,7 @@ namespace WindowsEnhancementSuit.Helper
 
                             foreach (var file in subFolderList.Concat(subFileList))
                             {
-                                setNode(currentNode.Nodes.Add(file, Path.GetFileName(file)), imageList);
+                                this.setNode(currentNode.Nodes.Add(file, Path.GetFileName(file)), imageList);
                             }
                         }
 
@@ -287,7 +287,7 @@ namespace WindowsEnhancementSuit.Helper
 
                         foreach (var file in subFolderList.Concat(subFileList))
                         {
-                            setNode(args.Node.Nodes.Add(file, Path.GetFileName(file)), imageList);
+                            this.setNode(args.Node.Nodes.Add(file, Path.GetFileName(file)), imageList);
                         }
                     }
 
@@ -301,7 +301,7 @@ namespace WindowsEnhancementSuit.Helper
                 foreach (var fileItem in fileList)
                 {
                     if (!File.Exists(fileItem) && !Directory.Exists(fileItem)) continue;
-                    setNode(treeView.Nodes.Add(fileItem, Path.GetFileName(fileItem)), imageList);
+                    this.setNode(treeView.Nodes.Add(fileItem, Path.GetFileName(fileItem)), imageList);
                 }
 
                 this.AttachToolBar(() => Clipboard.SetFileDropList(fileList));

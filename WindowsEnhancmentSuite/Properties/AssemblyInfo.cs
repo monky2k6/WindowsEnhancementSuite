@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
-[assembly: AssemblyTitle("Windows Enhancment Suit")]
+[assembly: AssemblyTitle("Windows Enhancment Suite")]
 [assembly: AssemblyDescription("Diese Anwendung erleichtert das tägliche Arbeiten mit Windows.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]

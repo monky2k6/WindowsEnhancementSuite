@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using SHDocVw;
 
-namespace WindowsEnhancementSuit.Helper.Windows
+namespace WindowsEnhancementSuite.Helper.Windows
 {
     public static class WindowsMethods
     {

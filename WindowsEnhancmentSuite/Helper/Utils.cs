@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using WindowsEnhancementSuit.Helper.Windows;
+using WindowsEnhancementSuite.Helper.Windows;
 
-namespace WindowsEnhancementSuit.Helper
+namespace WindowsEnhancementSuite.Helper
 {
     public static class Utils
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using WindowsEnhancementSuit.Forms;
-using WindowsEnhancementSuit.Properties;
+using WindowsEnhancementSuite.Forms;
+using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuit.Extensions
+namespace WindowsEnhancementSuite.Extensions
 {
     public static class FormExtensions
     {

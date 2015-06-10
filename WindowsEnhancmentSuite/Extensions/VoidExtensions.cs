@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace WindowsEnhancementSuit.Extensions
+namespace WindowsEnhancementSuite.Extensions
 {
     public static class VoidExtensions
     {

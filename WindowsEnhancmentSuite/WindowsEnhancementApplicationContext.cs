@@ -1,13 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using Open.WinKeyboardHook;
+using System;
 using System.Windows.Forms;
-using WindowsEnhancementSuit.Forms;
-using WindowsEnhancementSuit.Helper;
-using WindowsEnhancementSuit.Properties;
-using WindowsEnhancementSuit.Extensions;
-using Open.WinKeyboardHook;
+using WindowsEnhancementSuite.Extensions;
+using WindowsEnhancementSuite.Forms;
+using WindowsEnhancementSuite.Helper;
+using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuit
+namespace WindowsEnhancementSuite
 {
     public class WindowsEnhancementApplicationContext : ApplicationContext
     {

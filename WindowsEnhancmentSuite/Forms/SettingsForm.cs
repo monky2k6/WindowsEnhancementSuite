@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using WindowsEnhancementSuit.Properties;
+using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuit.Forms
+namespace WindowsEnhancementSuite.Forms
 {
     public partial class SettingsForm : Form
     {
@@ -13,7 +13,7 @@ namespace WindowsEnhancementSuit.Forms
 
         public SettingsForm()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
@@ -27,10 +27,10 @@ namespace WindowsEnhancementSuit.Forms
             this.trackBarJpegQuality.Value = Settings.Default.JpegCompression > 100 ? 70 : Settings.Default.JpegCompression;
             this.radioButtonJpeg.Checked = Settings.Default.ImageSaveFormat == 1;
 
-            textBoxHotkeyClipboard_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.CliboardHotkey));
-            textBoxHotkeyTextfile_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.TextfileHotkey));
-            textBoxHotkeyWatch_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowHotkey));
-            textBoxHotkeyBrowserHistory_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowBrowserHistory));
+            this.textBoxHotkeyClipboard_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.CliboardHotkey));
+            this.textBoxHotkeyTextfile_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.TextfileHotkey));
+            this.textBoxHotkeyWatch_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowHotkey));
+            this.textBoxHotkeyBrowserHistory_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowBrowserHistory));
         }
 
         private void radioButtonDefaultTextEditor_CheckedChanged(object sender, EventArgs e)
@@ -75,22 +75,22 @@ namespace WindowsEnhancementSuit.Forms
 
         private void textBoxHotkeyTextfile_KeyDown(object sender, KeyEventArgs e)
         {
-            this.textBoxHotkeyTextfile.Text = setHotKey(e, out this.textHotkey);
+            this.textBoxHotkeyTextfile.Text = this.setHotKey(e, out this.textHotkey);
         }
 
         private void textBoxHotkeyClipboard_KeyDown(object sender, KeyEventArgs e)
         {
-            this.textBoxHotkeyClipboard.Text = setHotKey(e, out this.clipboardHotkey);
+            this.textBoxHotkeyClipboard.Text = this.setHotKey(e, out this.clipboardHotkey);
         }
 
         private void textBoxHotkeyWatch_KeyDown(object sender, KeyEventArgs e)
         {
-            this.textBoxHotkeyWatch.Text = setHotKey(e, out this.showHotkey);
+            this.textBoxHotkeyWatch.Text = this.setHotKey(e, out this.showHotkey);
         }
 
         private void textBoxHotkeyBrowserHistory_KeyDown(object sender, KeyEventArgs e)
         {
-            this.textBoxHotkeyBrowserHistory.Text = setHotKey(e, out this.showBrowserHistory);
+            this.textBoxHotkeyBrowserHistory.Text = this.setHotKey(e, out this.showBrowserHistory);
         }
 
         private string setHotKey(KeyEventArgs e, out int keyCode)

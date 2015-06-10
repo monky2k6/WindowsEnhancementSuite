@@ -2,11 +2,11 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using WindowsEnhancementSuit.Properties;
+using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuit.Helper
+namespace WindowsEnhancementSuite.Helper
 {
-    public class FileCreateService
+    public class FileCreateHelper
     {
         public void CreateAndOpenTextfile()
         {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace WindowsEnhancementSuit
+namespace WindowsEnhancementSuite
 {
     static class Program
     {

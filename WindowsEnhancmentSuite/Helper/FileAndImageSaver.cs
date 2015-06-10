@@ -3,9 +3,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using WindowsEnhancementSuit.Properties;
+using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuit.Helper
+namespace WindowsEnhancementSuite.Helper
 {
     public class FileAndImageSaver
     {

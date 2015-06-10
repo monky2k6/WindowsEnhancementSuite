@@ -7,8 +7,8 @@
     <ProjectGuid>{E89CD29D-2E21-44F0-9FA6-BD43061EEC62}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsEnhancementSuit</RootNamespace>
-    <AssemblyName>WindowsEnhancementSuit</AssemblyName>
+    <RootNamespace>WindowsEnhancementSuite</RootNamespace>
+    <AssemblyName>WindowsEnhancementSuite</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
