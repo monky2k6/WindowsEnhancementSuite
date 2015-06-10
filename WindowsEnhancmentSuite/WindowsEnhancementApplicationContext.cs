@@ -80,7 +80,7 @@ namespace WindowsEnhancementSuite
             this.notifyIcon = new NotifyIcon
             {
                 Visible = true,
-                Text = @"Windows Enhancement Suit",
+                Text = @"Windows Enhancement Suite",
                 Icon = Resources.WES,
                 ContextMenu = new ContextMenu(new[]
                 {
