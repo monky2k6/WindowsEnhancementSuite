@@ -20,10 +20,7 @@ namespace WindowsEnhancementSuite.Extensions
             layeredWindow.SetBitmap(Resources.ClipboardButton);
             layeredWindow.Click += (sender, args) => action.Invoke();
 
-            winForm.Move += (sender, args) =>
-            {
-                layeredWindow.setLocation(winForm);
-            };
+            winForm.Move += (sender, args) => layeredWindow.setLocation(winForm);
 
             winForm.Resize += (sender, args) =>
             {
