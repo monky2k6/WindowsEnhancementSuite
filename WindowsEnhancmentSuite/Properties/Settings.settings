@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WindowsEnhancementSuit.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WindowsEnhancementSuite.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="ImageSaveFormat" Type="System.Byte" Scope="User">
@@ -12,16 +12,16 @@
       <Value Profile="(Default)">70</Value>
     </Setting>
     <Setting Name="CliboardHotkey" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">119</Value>
+      <Value Profile="(Default)">196694</Value>
     </Setting>
     <Setting Name="TextfileHotkey" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">196692</Value>
     </Setting>
     <Setting Name="ShowHotkey" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">120</Value>
+      <Value Profile="(Default)">196675</Value>
     </Setting>
     <Setting Name="ShowBrowserHistory" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">121</Value>
+      <Value Profile="(Default)">120</Value>
     </Setting>
   </Settings>
 </SettingsFile>

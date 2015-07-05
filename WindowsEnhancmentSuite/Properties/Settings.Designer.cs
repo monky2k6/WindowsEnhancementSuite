@@ -61,7 +61,7 @@ namespace WindowsEnhancementSuite.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("119")]
+        [global::System.Configuration.DefaultSettingValueAttribute("196694")]
         public int CliboardHotkey {
             get {
                 return ((int)(this["CliboardHotkey"]));
@@ -85,7 +85,7 @@ namespace WindowsEnhancementSuite.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("120")]
+        [global::System.Configuration.DefaultSettingValueAttribute("196675")]
         public int ShowHotkey {
             get {
                 return ((int)(this["ShowHotkey"]));
@@ -97,7 +97,7 @@ namespace WindowsEnhancementSuite.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("121")]
+        [global::System.Configuration.DefaultSettingValueAttribute("120")]
         public int ShowBrowserHistory {
             get {
                 return ((int)(this["ShowBrowserHistory"]));
