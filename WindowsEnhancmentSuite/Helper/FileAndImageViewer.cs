@@ -116,40 +116,36 @@ namespace WindowsEnhancementSuite.Helper
                     .ToString().PadLeft(6));
                 allWordItem.TextAlign = ContentAlignment.MiddleLeft;
 
-                var viewRichTextBox = new RichTextBox
-                {
-                    Location = new Point(0, 0),
-                    Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                    Size = new Size(this.ClientSize.Width, this.ClientSize.Height - statusStrip.Height),
-                    ReadOnly = true,
-                    Visible = true,
-                    Text = text,
-                    DetectUrls = true
-                };
-
-                viewRichTextBox.LinkClicked += (sender, args) =>
-                {
-                    try
-                    {
-                        Process.Start(args.LinkText);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                };
-
-                viewRichTextBox.SelectionChanged += (sender, args) =>
-                {
-                    string selectedText = viewRichTextBox.SelectedText;
-                    charCountItem.Text = "Selected Chars: " + selectedText.Count(s => s != '\r').ToString().PadLeft(6);
-                    wordCountItem.Text = "Selected Words: " + selectedText.Split(' ', '\n').Select(s => s.Trim()).Count(s => !String.IsNullOrWhiteSpace(s))
-                    .ToString().PadLeft(6);
-                };
+                var codeHighlighter = Factories.CodeHighlighter.Create(text, this,
+                    new Size(this.ClientSize.Width, this.ClientSize.Height - statusStrip.Height));
+                codeHighlighter.MinimumSize = this.MinimumSize;
 
                 this.Controls.Add(statusStrip);
-                this.Controls.Add(viewRichTextBox);
 
-                this.AttachToolBar(() => Clipboard.SetText(text));
+                var setCurrentText = new Action(() =>
+                {
+                    if (codeHighlighter.InvokeRequired)
+                    {
+                        codeHighlighter.Invoke(new Action(() =>
+                        {
+                            string currentText = codeHighlighter.Text;
+                            new Action(() =>
+                            {
+                                Clipboard.SetText(currentText);
+                            }).RunAsStaThread();
+                        }));
+                    }
+                    else
+                    {
+                        string currentText = codeHighlighter.Text;
+                        new Action(() =>
+                        {
+                            Clipboard.SetText(currentText);
+                        }).RunAsStaThread();
+                    }
+                });
+
+                this.AttachToolBar(setCurrentText, false);
             }
 
             public WatchForm(Image image)

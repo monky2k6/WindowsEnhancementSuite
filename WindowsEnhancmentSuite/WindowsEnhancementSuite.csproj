@@ -42,6 +42,10 @@
     <Reference Include="Open.WinKeyboardHook">
       <HintPath>..\packages\Open.WinKeyboardHook.1.0.10.0\lib\net45\Open.WinKeyboardHook.dll</HintPath>
     </Reference>
+    <Reference Include="ScintillaNET, Version=3.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\jacobslusser.ScintillaNET.3.4.0\lib\net40\ScintillaNET.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\VoidExtensions.cs" />
+    <Compile Include="Factories\CodeHighlighter.cs" />
     <Compile Include="Forms\LayeredWindow.cs">
       <SubType>Form</SubType>
     </Compile>

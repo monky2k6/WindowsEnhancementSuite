@@ -8,7 +8,7 @@ namespace WindowsEnhancementSuite.Extensions
 {
     public static class FormExtensions
     {
-        public static void AttachToolBar(this Form winForm, Action action)
+        public static void AttachToolBar(this Form winForm, Action action, bool RunAsSTA = true)
         {
             var layeredWindow = new LayeredWindow
             {
@@ -18,7 +18,17 @@ namespace WindowsEnhancementSuite.Extensions
             };
 
             layeredWindow.SetBitmap(Resources.ClipboardButton);
-            layeredWindow.Click += (sender, args) => new Action(action.Invoke).RunAsStaThread();
+            layeredWindow.Click += (sender, args) =>
+            {
+                if (RunAsSTA)
+                {
+                    new Action(action.Invoke).RunAsStaThread();
+                }
+                else
+                {
+                    action.Invoke();
+                }
+            };
 
             winForm.Move += (sender, args) => layeredWindow.setLocation(winForm);
 

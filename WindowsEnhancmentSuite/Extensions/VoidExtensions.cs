@@ -7,7 +7,7 @@ namespace WindowsEnhancementSuite.Extensions
     {
         public static void RunAsStaThread(this Action synchronAction)
         {
-            var thread = new Thread(() => synchronAction());
+            var thread = new Thread(synchronAction.Invoke);
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
         }
