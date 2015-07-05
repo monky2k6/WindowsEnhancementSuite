@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using SHDocVw;
 
@@ -26,10 +27,12 @@ namespace WindowsEnhancementSuite.Helper
             this.registerEvent(true);
         }
 
-        public void ShowExplorerHistory()
+        public bool ShowExplorerHistory()
         {
+            // Todo: Überprüfen ob man sich auf dem Desktop befindet
             var historyList = this.historyQueue.OrderByDescending(h => h.VisitDate).Select(h => h.Path).ToList();
-            Application.Run(new HistoryForm(historyList));
+            Task.Run(() => Application.Run(new HistoryForm(historyList)));
+            return true;
         }
 
         private void registerEvent(bool overwrite)

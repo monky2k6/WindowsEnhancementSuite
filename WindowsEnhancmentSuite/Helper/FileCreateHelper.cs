@@ -2,37 +2,45 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using WindowsEnhancementSuite.Properties;
 
 namespace WindowsEnhancementSuite.Helper
 {
     public class FileCreateHelper
     {
-        public void CreateAndOpenTextfile()
+        public bool CreateAndOpenTextfile()
         {
             string textFilePath;
             if (Utils.GetFreePath(@"NewTextFile", "txt", out textFilePath))
             {
-                try
+                Task.Run(() =>
                 {
-                    File.Create(textFilePath).Dispose();
+                    try
+                    {
+                        File.Create(textFilePath).Dispose();
 
-                    if (String.IsNullOrWhiteSpace(Settings.Default.TextApplication))
-                    {
-                        Process.Start(textFilePath);   
+                        if (String.IsNullOrWhiteSpace(Settings.Default.TextApplication))
+                        {
+                            Process.Start(textFilePath);
+                        }
+                        else
+                        {
+                            Process.Start(Settings.Default.TextApplication, textFilePath);
+                        }
                     }
-                    else
+                    catch (UnauthorizedAccessException)
                     {
-                        Process.Start(Settings.Default.TextApplication, textFilePath);
                     }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                }
-                catch (Win32Exception)
-                {
-                }
+                    catch (Win32Exception)
+                    {
+                    }
+                });
+
+                return true;
             }
+
+            return false;
         }
     }
 }

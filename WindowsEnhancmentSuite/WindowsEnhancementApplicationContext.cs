@@ -45,7 +45,8 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.CliboardHotkey)
                 {
-                    new Action(this.fileAndImageSaver.SaveClipboardInFile).RunAsStaThread();
+                    keyEventArgs.Handled = this.fileAndImageSaver.SaveClipboardInFile();
+                    return;
                 }
             }
 
@@ -53,7 +54,8 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.TextfileHotkey)
                 {
-                    new Action(this.fileCreateHelper.CreateAndOpenTextfile).RunAsStaThread();
+                    keyEventArgs.Handled = this.fileCreateHelper.CreateAndOpenTextfile();
+                    return;
                 }
             }
 
@@ -61,7 +63,8 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowHotkey)
                 {
-                    new Action(this.fileAndImageViewer.ShowClipboardContent).RunAsStaThread();
+                    keyEventArgs.Handled = this.fileAndImageViewer.ShowClipboardContent();
+                    return;
                 }
             }
 
@@ -69,7 +72,8 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowBrowserHistory)
                 {
-                    new Action(this.explorerBrowserHelper.ShowExplorerHistory).RunAsStaThread();
+                    keyEventArgs.Handled = this.explorerBrowserHelper.ShowExplorerHistory();
+                    return;
                 }
             }
         }

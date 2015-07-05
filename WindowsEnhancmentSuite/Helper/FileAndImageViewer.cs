@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Properties;
@@ -12,43 +13,46 @@ namespace WindowsEnhancementSuite.Helper
 {
     public class FileAndImageViewer
     {
-        public void ShowClipboardContent()
+        public bool ShowClipboardContent()
         {
             if (Clipboard.ContainsText())
             {
                 this.showText();
-                return;
+                return true;
             }
 
             if (Clipboard.ContainsImage())
             {
                 this.showImage();
-                return;
+                return true;
             }
 
             if (Clipboard.ContainsFileDropList())
             {
                 this.showFileDropList();
-                return;
+                return true;
             }
+
+            return false;
         }
 
         private void showText()
         {
-            Application.Run(new WatchForm(Clipboard.GetText()));
+            string clipboard = Clipboard.GetText();
+            Task.Run(() => Application.Run(new WatchForm(clipboard)));
         }
 
         private void showImage()
         {
             var imageData = Clipboard.GetImage();
             if (imageData == null) return;
-            Application.Run(new WatchForm(imageData));
+            Task.Run(() => Application.Run(new WatchForm(imageData)));
         }
 
         private void showFileDropList()
         {
             var fileList = Clipboard.GetFileDropList();
-            Application.Run(new WatchForm(fileList));
+            Task.Run(() => Application.Run(new WatchForm(fileList)));
         }
 
         private sealed class WatchForm : Form
