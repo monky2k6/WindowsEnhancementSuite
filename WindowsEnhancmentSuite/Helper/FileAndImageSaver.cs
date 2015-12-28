@@ -70,24 +70,28 @@ namespace WindowsEnhancementSuite.Helper
 
         private bool saveClipboardTextToFile()
         {
-            string textFilePath;
-            if (Utils.GetFreePath(@"Clipboard", "txt", out textFilePath))
+            var clipboardText = Clipboard.GetText(TextDataFormat.Text);
+            if (String.IsNullOrWhiteSpace(clipboardText)) return false;
+
+            new Action(() =>
             {
                 try
                 {
-                    var clipboardText = Clipboard.GetText(TextDataFormat.Text);
-                    using (var streamWriter = new StreamWriter(textFilePath))
+                    string textFilePath;
+                    if (Utils.GetFreePath(@"Clipboard", "txt", out textFilePath))
                     {
-                        streamWriter.Write(clipboardText);
-                        return true;
+                        using (var streamWriter = new StreamWriter(textFilePath))
+                        {
+                            streamWriter.Write(clipboardText);
+                        }
                     }
                 }
                 catch (UnauthorizedAccessException)
                 {
-                }
-            }
+                }                
+            }).RunAsStaThread();
 
-            return false;
+            return true;
         }
     }
 }

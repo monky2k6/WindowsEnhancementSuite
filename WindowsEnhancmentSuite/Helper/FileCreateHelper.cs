@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
+using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Properties;
 
 namespace WindowsEnhancementSuite.Helper
@@ -11,12 +11,12 @@ namespace WindowsEnhancementSuite.Helper
     {
         public bool CreateAndOpenTextfile()
         {
-            string textFilePath;
-            if (Utils.GetFreePath(@"NewTextFile", "txt", out textFilePath))
+            new Action(() =>
             {
-                Task.Run(() =>
+                try
                 {
-                    try
+                    string textFilePath;
+                    if (Utils.GetFreePath(@"NewTextFile", "txt", out textFilePath))
                     {
                         File.Create(textFilePath).Dispose();
 
@@ -29,18 +29,16 @@ namespace WindowsEnhancementSuite.Helper
                             Process.Start(Settings.Default.TextApplication, textFilePath);
                         }
                     }
-                    catch (UnauthorizedAccessException)
-                    {
-                    }
-                    catch (Win32Exception)
-                    {
-                    }
-                });
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+                catch (Win32Exception)
+                {
+                }
+            }).RunAsStaThread();                        
 
-                return true;
-            }
-
-            return false;
+            return true;
         }
     }
 }
