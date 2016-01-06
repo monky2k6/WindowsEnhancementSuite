@@ -29,7 +29,7 @@ namespace WindowsEnhancementSuite.Helper
 
         public bool ShowExplorerHistory()
         {
-            // Todo: Überprüfen ob man sich auf dem Desktop befindet
+            // Todo: Check if we're on the Desktop
             var historyList = this.historyQueue.OrderByDescending(h => h.VisitDate).Select(h => h.Path).ToList();
             Task.Run(() => Application.Run(new HistoryForm(historyList)));
             return true;
@@ -65,7 +65,7 @@ namespace WindowsEnhancementSuite.Helper
             // Deduplizieren
             this.historyQueue = new Queue<ExplorerHistory>(this.historyQueue.Where(h => h.Path != path));
 
-            if (this.historyQueue.Count >= MAX_HISTORY)
+            while (this.historyQueue.Count >= MAX_HISTORY)
             {
                 this.historyQueue.Dequeue();
             }
@@ -97,7 +97,7 @@ namespace WindowsEnhancementSuite.Helper
 
         private sealed class HistoryForm : Form
         {
-            public HistoryForm(List<string> historyList)
+            public HistoryForm(IEnumerable<string> historyList)
             {
                 this.Size = new Size(250, 270);
 
@@ -142,6 +142,9 @@ namespace WindowsEnhancementSuite.Helper
                         try
                         {
                             Process.Start(path);
+                        }
+                        catch (Exception)
+                        {
                         }
                         finally
                         {

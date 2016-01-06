@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Properties;
 
 namespace WindowsEnhancementSuite.Helper
@@ -11,7 +10,7 @@ namespace WindowsEnhancementSuite.Helper
     {
         public bool CreateAndOpenTextfile()
         {
-            new Action(() =>
+            ThreadHelper.RunAsStaThread(() =>
             {
                 try
                 {
@@ -36,7 +35,7 @@ namespace WindowsEnhancementSuite.Helper
                 catch (Win32Exception)
                 {
                 }
-            }).RunAsStaThread();                        
+            });
 
             return true;
         }

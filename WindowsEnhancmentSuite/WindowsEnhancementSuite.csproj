@@ -58,7 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\VoidExtensions.cs" />
+    <Compile Include="Helper\ThreadHelper.cs" />
     <Compile Include="Factories\CodeHighlighter.cs" />
     <Compile Include="Forms\LayeredWindow.cs">
       <SubType>Form</SubType>

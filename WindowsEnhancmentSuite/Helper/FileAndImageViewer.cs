@@ -124,25 +124,22 @@ namespace WindowsEnhancementSuite.Helper
 
                 var setCurrentText = new Action(() =>
                 {
-                    if (codeHighlighter.InvokeRequired)
-                    {
-                        codeHighlighter.Invoke(new Action(() =>
-                        {
-                            string currentText = codeHighlighter.Text;
-                            new Action(() =>
-                            {
-                                Clipboard.SetText(currentText);
-                            }).RunAsStaThread();
-                        }));
-                    }
-                    else
+                    var invokeAction = new Action(() =>
                     {
                         string currentText = codeHighlighter.Text;
-                        new Action(() =>
+                        ThreadHelper.RunAsStaThread(() =>
                         {
                             Clipboard.SetText(currentText);
-                        }).RunAsStaThread();
+                        });
+                    });
+
+                    if (codeHighlighter.InvokeRequired)
+                    {
+                        codeHighlighter.Invoke(invokeAction);
+                        return;
                     }
+
+                    invokeAction();
                 });
 
                 this.AttachToolBar(setCurrentText, false);

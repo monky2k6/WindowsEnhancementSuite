@@ -30,7 +30,7 @@ namespace WindowsEnhancementSuite.Helper
             var imageData = Clipboard.GetImage();
             if (imageData == null) return false;
 
-            new Action(() =>
+            ThreadHelper.RunAsStaThread(() =>
             {
                 try
                 {
@@ -54,7 +54,7 @@ namespace WindowsEnhancementSuite.Helper
                                     var parameters = new EncoderParameters(1);
                                     parameters.Param[0] = new EncoderParameter(Encoder.Quality, (long)compression);
 
-                                    imageData.Save(imageFilePath, encoder, parameters); 
+                                    imageData.Save(imageFilePath, encoder, parameters);
                                 }
                             }
                             break;
@@ -63,7 +63,7 @@ namespace WindowsEnhancementSuite.Helper
                 catch (UnauthorizedAccessException)
                 {
                 }
-            }).RunAsStaThread();
+            });
 
             return true;
         }
@@ -73,7 +73,7 @@ namespace WindowsEnhancementSuite.Helper
             var clipboardText = Clipboard.GetText(TextDataFormat.Text);
             if (String.IsNullOrWhiteSpace(clipboardText)) return false;
 
-            new Action(() =>
+            ThreadHelper.RunAsStaThread(() =>
             {
                 try
                 {
@@ -88,8 +88,8 @@ namespace WindowsEnhancementSuite.Helper
                 }
                 catch (UnauthorizedAccessException)
                 {
-                }                
-            }).RunAsStaThread();
+                }
+            });
 
             return true;
         }

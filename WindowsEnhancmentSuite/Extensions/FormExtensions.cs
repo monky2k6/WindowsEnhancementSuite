@@ -2,13 +2,14 @@
 using System.Drawing;
 using System.Windows.Forms;
 using WindowsEnhancementSuite.Forms;
+using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
 
 namespace WindowsEnhancementSuite.Extensions
 {
     public static class FormExtensions
     {
-        public static void AttachToolBar(this Form winForm, Action action, bool RunAsSTA = true)
+        public static void AttachToolBar(this Form winForm, Action action, bool runAsSta = true)
         {
             var layeredWindow = new LayeredWindow
             {
@@ -20,13 +21,13 @@ namespace WindowsEnhancementSuite.Extensions
             layeredWindow.SetBitmap(Resources.ClipboardButton);
             layeredWindow.Click += (sender, args) =>
             {
-                if (RunAsSTA)
+                if (runAsSta)
                 {
-                    new Action(action.Invoke).RunAsStaThread();
+                    ThreadHelper.RunAsStaThread(action.Invoke);
                 }
                 else
                 {
-                    action.Invoke();
+                    action();
                 }
             };
 
