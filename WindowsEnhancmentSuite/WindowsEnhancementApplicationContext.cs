@@ -11,12 +11,12 @@ namespace WindowsEnhancementSuite
     public class WindowsEnhancementApplicationContext : ApplicationContext
     {
         private NotifyIcon notifyIcon;
-        private FileAndImageSaver fileAndImageSaver;
-        private FileCreateHelper fileCreateHelper;
-        private FileAndImageViewer fileAndImageViewer;
-        private ExplorerBrowserHelper explorerBrowserHelper;
+        private readonly FileAndImageSaver fileAndImageSaver;
+        private readonly FileCreateHelper fileCreateHelper;
+        private readonly FileAndImageViewer fileAndImageViewer;
+        private readonly ExplorerBrowserHelper explorerBrowserHelper;
 
-        private KeyboardInterceptor keyboadHook;
+        private readonly KeyboardInterceptor keyboadHook;
 
         public WindowsEnhancementApplicationContext()
         {
