@@ -39,20 +39,20 @@ namespace WindowsEnhancementSuite.Helper
         private void showText()
         {
             string clipboard = Clipboard.GetText();
-            Task.Run(() => Application.Run(new WatchForm(clipboard)));
+            ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(clipboard)));
         }
 
         private void showImage()
         {
             var imageData = Clipboard.GetImage();
             if (imageData == null) return;
-            Task.Run(() => Application.Run(new WatchForm(imageData)));
+            ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(imageData)));
         }
 
         private void showFileDropList()
         {
             var fileList = Clipboard.GetFileDropList();
-            Task.Run(() => Application.Run(new WatchForm(fileList)));
+            ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(fileList)));
         }
 
         private sealed class WatchForm : Form
