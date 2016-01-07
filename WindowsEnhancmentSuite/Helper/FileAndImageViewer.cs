@@ -318,71 +318,40 @@ namespace WindowsEnhancementSuite.Helper
                     return;
                 }
 
-                var fileEnding = Path.GetExtension(node.Name).ToLower();
-
-                // Executables
-                if (fileEnding.Contains(".exe"))
+                // FileIcon
+                string nodeName = node.Name.ToLower();
+                if (imageList.Images.ContainsKey(nodeName))
                 {
-                    string nodeName = node.Name.ToLower();
-                    if (!imageList.Images.ContainsKey(nodeName))
-                    {
-                        var nodeIcon = Icon.ExtractAssociatedIcon(node.Name);
+                    node.ImageKey = nodeName;
+                    node.SelectedImageKey = nodeName;
+                    
+                    return;
+                }
 
-                        if (nodeIcon == null)
-                        {
-                            node.ImageKey = NODE_TYPE_EXECUTABLE;
-                            node.SelectedImageKey = NODE_TYPE_EXECUTABLE;
-
-                            return;
-                        }
-
-                        imageList.Images.Add(nodeName, nodeIcon);
-                    }
-
+                var nodeIcon = Icon.ExtractAssociatedIcon(node.Name);
+                if (nodeIcon != null)
+                {
+                    imageList.Images.Add(nodeName, nodeIcon);
                     node.ImageKey = nodeName;
                     node.SelectedImageKey = nodeName;
 
                     return;
                 }
 
-                // Icons & Links
-                if (fileEnding.Contains(".ico") || fileEnding.Contains(".lnk"))
+                string fileEnding = Path.GetExtension(node.Name).ToLower();
+
+                // Executables
+                if (fileEnding.Contains(".exe"))
                 {
-                    string nodeName = node.Name.ToLower();
-                    if (!imageList.Images.ContainsKey(nodeName))
-                    {
-                        var nodeIcon = Icon.ExtractAssociatedIcon(node.Name);
+                    node.ImageKey = NODE_TYPE_EXECUTABLE;
+                    node.SelectedImageKey = NODE_TYPE_EXECUTABLE;
 
-                        if (nodeIcon != null)
-                        {
-                            imageList.Images.Add(nodeName, nodeIcon);
-
-                            node.ImageKey = nodeName;
-                            node.SelectedImageKey = nodeName;
-
-                            return;
-                        }
-                    }
+                    return;
                 }
 
                 // Other
-                if (!imageList.Images.ContainsKey(fileEnding))
-                {
-                    var nodeIcon = Icon.ExtractAssociatedIcon(node.Name);
-
-                    if (nodeIcon == null)
-                    {
-                        node.ImageKey = NODE_TYPE_OTHER;
-                        node.SelectedImageKey = NODE_TYPE_OTHER;
-
-                        return;
-                    }
-
-                    imageList.Images.Add(fileEnding, nodeIcon);
-                }
-
-                node.ImageKey = fileEnding;
-                node.SelectedImageKey = fileEnding;
+                node.ImageKey = NODE_TYPE_OTHER;
+                node.SelectedImageKey = NODE_TYPE_OTHER;
             }
         }
     }
