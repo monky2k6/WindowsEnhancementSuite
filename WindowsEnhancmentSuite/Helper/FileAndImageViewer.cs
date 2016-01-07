@@ -84,10 +84,10 @@ namespace WindowsEnhancementSuite.Helper
 
                 this.Shown += (sender, args) =>
                 {
-                    this.BringToFront();
                     this.TopMost = true;
+                    this.BringToFront();
+                    this.TopMost = false;
                 };
-
                 this.Disposed += (sender, args) => GC.Collect();
             }
 
@@ -156,6 +156,7 @@ namespace WindowsEnhancementSuite.Helper
                     Location = new Point(0, 0),
                     Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                     Size = this.ClientSize,
+                    Parent = this,
                     Visible = true
                 };
 

@@ -18,9 +18,12 @@ namespace WindowsEnhancementSuite.Extensions
                 Owner = winForm
             };
 
-            layeredWindow.SetBitmap(Resources.ClipboardButton);
-            layeredWindow.Click += (sender, args) =>
+            layeredWindow.SetBitmap(Resources.ClipboardButton);  
+            layeredWindow.createContextMenu();
+
+            layeredWindow.MouseClick += (sender, args) =>
             {
+                if (args.Button == MouseButtons.Right) return;
                 if (runAsSta)
                 {
                     ThreadHelper.RunAsStaThread(action.Invoke);
@@ -48,6 +51,25 @@ namespace WindowsEnhancementSuite.Extensions
                 layeredWindow.setLocation(winForm);
                 layeredWindow.Show();
             };
+        }
+
+        private static void createContextMenu(this LayeredWindow layer)
+        {
+            if (layer.ContextMenu == null) layer.ContextMenu = new ContextMenu();
+            layer.ContextMenu.MenuItems.Add("Top Most", (sender, args) => toggleTopMost(layer, (MenuItem)sender));
+            layer.ContextMenu.MenuItems.Add("Lock", (sender, args) => lockForm(layer, (MenuItem)sender));
+        }
+
+        private static void toggleTopMost(LayeredWindow layer, MenuItem menuItem)
+        {
+            menuItem.Checked = !menuItem.Checked;
+            layer.Owner.TopMost = menuItem.Checked;
+        }
+
+        private static void lockForm(LayeredWindow layer, MenuItem menuItem)
+        {
+            menuItem.Checked = !menuItem.Checked;
+            layer.Owner.Enabled = !menuItem.Checked;
         }
 
         private static void setLocation(this Form locationForm, Form baseForm)
