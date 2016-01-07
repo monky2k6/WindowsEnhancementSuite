@@ -1,7 +1,6 @@
 ﻿using Open.WinKeyboardHook;
 using System;
 using System.Windows.Forms;
-using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Forms;
 using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
