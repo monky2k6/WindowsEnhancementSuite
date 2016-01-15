@@ -66,9 +66,8 @@ namespace WindowsEnhancementSuite.Helper
 
                 this.Text = "";
 
-                this.ClientSize = SystemInformation.VirtualScreen.Size;
                 this.StartPosition = FormStartPosition.Manual;
-                this.Location = new Point(MousePosition.X - (formSize.Width / 2), MousePosition.Y - 20);
+                this.Location = getFormLocation(formSize, SystemInformation.VirtualScreen.Size);
 
                 this.MinimizeBox = true;
                 this.MinimumSize = new Size(300, 250);
@@ -197,10 +196,7 @@ namespace WindowsEnhancementSuite.Helper
                 int y = image.Height > screenSize.Height ? screenSize.Height : image.Height;
                 this.ClientSize = new Size(x, y);
 
-                // Bild mittig auf dem Cursor positionieren
-                x = Math.Min(Math.Max(MousePosition.X - (x / 2), 0), screenSize.Width - this.Size.Width);
-                y = Math.Min(Math.Max(MousePosition.Y - (y / 2), 0), screenSize.Height - this.Size.Height);
-                this.Location = new Point(x, y);
+                this.Location = getFormLocation(this.ClientSize, screenSize);
 
                 this.AttachToolBar(() => Clipboard.SetImage(image));
             }
@@ -302,6 +298,14 @@ namespace WindowsEnhancementSuite.Helper
                 }
 
                 this.AttachToolBar(() => Clipboard.SetFileDropList(fileList));
+            }
+
+            private Point getFormLocation(Size formSize, Size formMaxSize)
+            {
+                // Form im Workspace anzeigen
+                int x = Math.Min(Math.Max(MousePosition.X - (formSize.Width / 2), 0), formMaxSize.Width - formSize.Width);
+                int y = Math.Min(Math.Max(MousePosition.Y - (formSize.Height / 2), 0), formMaxSize.Height - formSize.Height);
+                return new Point(x, y);
             }
 
             private void setNode(TreeNode node, ImageList imageList)
