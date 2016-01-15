@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using SHDocVw;
 
@@ -31,7 +30,7 @@ namespace WindowsEnhancementSuite.Helper
         {
             // Todo: Check if we're on the Desktop
             var historyList = this.historyQueue.OrderByDescending(h => h.VisitDate).Select(h => h.Path).ToList();
-            Task.Run(() => Application.Run(new HistoryForm(historyList)));
+            ThreadHelper.RunAsStaThread(() => Application.Run(new HistoryForm(historyList)));
             return true;
         }
 
