@@ -3,12 +3,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using WindowsEnhancementSuite.Extensions;
+using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuite.Helper
+namespace WindowsEnhancementSuite.Services
 {
-    public class FileAndImageSaver
+    public class FileAndImageSaveService
     {
         public bool SaveClipboardInFile()
         {
@@ -31,37 +31,52 @@ namespace WindowsEnhancementSuite.Helper
             if (imageData == null) return false;
 
             ThreadHelper.RunAsStaThread(() =>
-            {
-                try
+            {                
+                using (var memoryStream = new MemoryStream())
                 {
-                    string imageFilePath;
+                    string imageFilePath = String.Empty;
                     switch (Settings.Default.ImageSaveFormat)
                     {
                         case 0:
                             if (Utils.GetFreePath(@"Clipboard", "png", out imageFilePath))
                             {
-                                imageData.Save(imageFilePath, ImageFormat.Png);
+                                imageData.Save(memoryStream, ImageFormat.Png);
                             }
                             break;
                         case 1:
                             if (Utils.GetFreePath(@"Clipboard", "jpg", out imageFilePath))
                             {
                                 var encoder =
-                                    ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.MimeType == @"image/jpeg");
+                                ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.MimeType == @"image/jpeg");
                                 if (encoder != null)
                                 {
                                     var compression = Settings.Default.JpegCompression > 100 ? (byte)70 : Settings.Default.JpegCompression;
                                     var parameters = new EncoderParameters(1);
                                     parameters.Param[0] = new EncoderParameter(Encoder.Quality, (long)compression);
 
-                                    imageData.Save(imageFilePath, encoder, parameters);
+                                    imageData.Save(memoryStream, encoder, parameters);
                                 }
                             }
                             break;
                     }
-                }
-                catch (UnauthorizedAccessException)
-                {
+
+                    if (String.IsNullOrWhiteSpace(imageFilePath)) return;
+                    try
+                    {
+                        using (var fileStream = new FileStream(imageFilePath, FileMode.Create))
+                        {
+                            memoryStream.WriteTo(fileStream);
+                        }                        
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        string tmpFile = Path.GetTempFileName();
+                        using (var fileStream = new FileStream(tmpFile, FileMode.Create))
+                        {
+                            memoryStream.WriteTo(fileStream);
+                        } 
+                        UacAssistService.TryAsAdmin(UacAssistCommand.MOVE, tmpFile, imageFilePath);
+                    } 
                 }
             });
 
@@ -75,23 +90,31 @@ namespace WindowsEnhancementSuite.Helper
 
             ThreadHelper.RunAsStaThread(() =>
             {
-                try
+                string textFilePath;
+                if (Utils.GetFreePath(@"Clipboard", "txt", out textFilePath))
                 {
-                    string textFilePath;
-                    if (Utils.GetFreePath(@"Clipboard", "txt", out textFilePath))
+                    try
                     {
-                        using (var streamWriter = new StreamWriter(textFilePath))
-                        {
-                            streamWriter.Write(clipboardText);
-                        }
+                        writeTextToFile(textFilePath, clipboardText);
                     }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                }
+                    catch (UnauthorizedAccessException)
+                    {
+                        string tmpFile = Path.GetTempFileName();
+                        writeTextToFile(tmpFile, clipboardText);
+                        UacAssistService.TryAsAdmin(UacAssistCommand.MOVE, tmpFile, textFilePath);
+                    }
+                }                
             });
 
             return true;
+        }
+
+        private void writeTextToFile(string path, string text)
+        {
+            using (var streamWriter = new StreamWriter(path))
+            {
+                streamWriter.Write(text);
+            }
         }
     }
 }

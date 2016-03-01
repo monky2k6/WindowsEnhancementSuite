@@ -9,13 +9,23 @@ namespace WindowsEnhancementSuite.Extensions
 {
     public static class FormExtensions
     {
-        public static void AttachToolBar(this Form winForm, Action action, bool runAsSta = true)
+        public static void AttachToolBar(this Form winForm, Action action, Control mainControl)
+        {
+            winForm.AttachToolBar(action, mainControl, true);
+        }
+
+        public static void AttachToolBar(this Form winForm, Action action, Control mainControl, bool runAsSta)
         {
             var layeredWindow = new LayeredWindow
             {
                 Size = new Size(10, 10),
                 StartPosition = FormStartPosition.Manual,
-                Owner = winForm
+                Owner = winForm,
+                Tag = new LayerTag
+                {
+                    Form = winForm,
+                    MainControl = mainControl
+                }
             };
 
             layeredWindow.SetBitmap(Resources.ClipboardButton);  
@@ -62,19 +72,27 @@ namespace WindowsEnhancementSuite.Extensions
 
         private static void toggleTopMost(LayeredWindow layer, MenuItem menuItem)
         {
-            menuItem.Checked = !menuItem.Checked;
-            layer.Owner.TopMost = menuItem.Checked;
+            if (!(layer.Tag is LayerTag)) return;
+            menuItem.Checked = !menuItem.Checked;            
+           ((LayerTag) layer.Tag).Form.TopMost = menuItem.Checked;
         }
 
         private static void lockForm(LayeredWindow layer, MenuItem menuItem)
         {
-            menuItem.Checked = !menuItem.Checked;
-            layer.Owner.Enabled = !menuItem.Checked;
+            if (!(layer.Tag is LayerTag)) return;
+            menuItem.Checked = !menuItem.Checked;            
+            ((LayerTag)layer.Tag).MainControl.Enabled = !menuItem.Checked;
         }
 
         private static void setLocation(this Form locationForm, Form baseForm)
         {
             locationForm.Location = new Point(baseForm.Location.X + baseForm.Width - locationForm.Width - 105, baseForm.Location.Y + 1);
+        }
+
+        private sealed class LayerTag
+        {
+            public Form Form { get; set; }
+            public Control MainControl { get; set; } 
         }
     }
 }

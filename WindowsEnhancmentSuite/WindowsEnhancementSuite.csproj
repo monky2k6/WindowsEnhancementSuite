@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\SizeExtensions.cs" />
     <Compile Include="Helper\ThreadHelper.cs" />
     <Compile Include="Factories\CodeHighlighter.cs" />
     <Compile Include="Forms\LayeredWindow.cs">
@@ -74,10 +75,10 @@
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helper\ExplorerBrowserHelper.cs" />
-    <Compile Include="Helper\FileAndImageSaver.cs" />
-    <Compile Include="Helper\FileAndImageViewer.cs" />
-    <Compile Include="Helper\FileCreateHelper.cs" />
+    <Compile Include="Services\ExplorerBrowserService.cs" />
+    <Compile Include="Services\FileAndImageSaveService.cs" />
+    <Compile Include="Services\FileAndImageViewService.cs" />
+    <Compile Include="Services\FileCreateService.cs" />
     <Compile Include="Extensions\FormExtensions.cs" />
     <Compile Include="Helper\Utils.cs" />
     <Compile Include="Helper\Windows\WindowsMethods.cs" />

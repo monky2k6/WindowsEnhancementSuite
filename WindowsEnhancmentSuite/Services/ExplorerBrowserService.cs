@@ -5,18 +5,19 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using WindowsEnhancementSuite.Helper;
 using SHDocVw;
 
-namespace WindowsEnhancementSuite.Helper
+namespace WindowsEnhancementSuite.Services
 {
-    public class ExplorerBrowserHelper
+    public class ExplorerBrowserService
     {
         private const short MAX_HISTORY = 20;
 
         private readonly ShellWindows shellWindows;
         private Queue<ExplorerHistory> historyQueue;
 
-        public ExplorerBrowserHelper()
+        public ExplorerBrowserService()
         {
             this.historyQueue = new Queue<ExplorerHistory>();
 

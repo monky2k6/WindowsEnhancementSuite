@@ -6,11 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using WindowsEnhancementSuite.Extensions;
+using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
 
-namespace WindowsEnhancementSuite.Helper
+namespace WindowsEnhancementSuite.Services
 {
-    public class FileAndImageViewer
+    public class FileAndImageViewService
     {
         public bool ShowClipboardContent()
         {
@@ -115,8 +116,7 @@ namespace WindowsEnhancementSuite.Helper
                 allWordItem.TextAlign = ContentAlignment.MiddleLeft;
 
                 var codeHighlighter = Factories.CodeHighlighter.Create(text, this,
-                    new Size(this.ClientSize.Width, this.ClientSize.Height - statusStrip.Height));
-                codeHighlighter.MinimumSize = this.MinimumSize;
+                    this.ClientSize.Adjust(0, -statusStrip.Height));
 
                 this.Controls.Add(statusStrip);
 
@@ -140,7 +140,7 @@ namespace WindowsEnhancementSuite.Helper
                     invokeAction();
                 });
 
-                this.AttachToolBar(setCurrentText, false);
+                this.AttachToolBar(setCurrentText, codeHighlighter, false);
             }
 
             public WatchForm(Image image)
@@ -172,6 +172,8 @@ namespace WindowsEnhancementSuite.Helper
 
                 this.MouseWheel += (sender, e) =>
                 {
+                    if (!viewPictureBox.Enabled) return;
+
                     var originalImage = (Image)viewPictureBox.Tag;
 
                     int changeX = viewPictureBox.Image.Width * e.Delta / 1000;
@@ -198,7 +200,7 @@ namespace WindowsEnhancementSuite.Helper
 
                 this.Location = getFormLocation(this.ClientSize, screenSize);
 
-                this.AttachToolBar(() => Clipboard.SetImage(image));
+                this.AttachToolBar(() => Clipboard.SetImage(image), viewPictureBox);
             }
 
             public WatchForm(StringCollection fileList)
@@ -297,7 +299,7 @@ namespace WindowsEnhancementSuite.Helper
                     this.setNode(treeView.Nodes.Add(fileItem, Path.GetFileName(fileItem)), imageList);
                 }
 
-                this.AttachToolBar(() => Clipboard.SetFileDropList(fileList));
+                this.AttachToolBar(() => Clipboard.SetFileDropList(fileList), treeView);
             }
 
             private Point getFormLocation(Size formSize, Size formMaxSize)
@@ -339,11 +341,10 @@ namespace WindowsEnhancementSuite.Helper
                     node.SelectedImageKey = nodeName;
 
                     return;
-                }
-
-                string fileEnding = Path.GetExtension(node.Name).ToLower();
+                }                
 
                 // Executables
+                string fileEnding = Path.GetExtension(node.Name).ToLower();
                 if (fileEnding.Contains(".exe"))
                 {
                     node.ImageKey = NODE_TYPE_EXECUTABLE;
