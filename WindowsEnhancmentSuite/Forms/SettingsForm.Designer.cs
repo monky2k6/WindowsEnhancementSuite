@@ -39,14 +39,14 @@
             this.radioButtonPng = new System.Windows.Forms.RadioButton();
             this.buttonSave = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBoxHotkeyBrowserHistory = new System.Windows.Forms.TextBox();
             this.textBoxHotkeyWatch = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.textBoxHotkeyTextfile = new System.Windows.Forms.TextBox();
             this.textBoxHotkeyClipboard = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBoxHotkeyBrowserHistory = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
@@ -121,6 +121,7 @@
             // 
             // trackBarJpegQuality
             // 
+            this.trackBarJpegQuality.Enabled = false;
             this.trackBarJpegQuality.Location = new System.Drawing.Point(105, 35);
             this.trackBarJpegQuality.Maximum = 100;
             this.trackBarJpegQuality.Name = "trackBarJpegQuality";
@@ -138,6 +139,7 @@
             this.radioButtonJpeg.TabIndex = 1;
             this.radioButtonJpeg.Text = "JPEG";
             this.radioButtonJpeg.UseVisualStyleBackColor = true;
+            this.radioButtonJpeg.CheckedChanged += new System.EventHandler(this.radioButtonJpeg_CheckedChanged);
             // 
             // radioButtonPng
             // 
@@ -177,6 +179,26 @@
             this.groupBox3.TabIndex = 3;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Hotkeys";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 94);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(108, 13);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "Show Browserhistory:";
+            // 
+            // textBoxHotkeyBrowserHistory
+            // 
+            this.textBoxHotkeyBrowserHistory.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.textBoxHotkeyBrowserHistory.Location = new System.Drawing.Point(132, 91);
+            this.textBoxHotkeyBrowserHistory.MaxLength = 50;
+            this.textBoxHotkeyBrowserHistory.Name = "textBoxHotkeyBrowserHistory";
+            this.textBoxHotkeyBrowserHistory.ReadOnly = true;
+            this.textBoxHotkeyBrowserHistory.Size = new System.Drawing.Size(135, 20);
+            this.textBoxHotkeyBrowserHistory.TabIndex = 6;
+            this.textBoxHotkeyBrowserHistory.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxHotkeyBrowserHistory_KeyDown);
             // 
             // textBoxHotkeyWatch
             // 
@@ -237,26 +259,6 @@
             this.label1.Size = new System.Drawing.Size(85, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Clipboard to File:";
-            // 
-            // textBoxHotkeyBrowserHistory
-            // 
-            this.textBoxHotkeyBrowserHistory.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.textBoxHotkeyBrowserHistory.Location = new System.Drawing.Point(132, 91);
-            this.textBoxHotkeyBrowserHistory.MaxLength = 50;
-            this.textBoxHotkeyBrowserHistory.Name = "textBoxHotkeyBrowserHistory";
-            this.textBoxHotkeyBrowserHistory.ReadOnly = true;
-            this.textBoxHotkeyBrowserHistory.Size = new System.Drawing.Size(135, 20);
-            this.textBoxHotkeyBrowserHistory.TabIndex = 6;
-            this.textBoxHotkeyBrowserHistory.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxHotkeyBrowserHistory_KeyDown);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 94);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(108, 13);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "Show Browserhistory:";
             // 
             // SettingsForm
             // 

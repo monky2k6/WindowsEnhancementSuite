@@ -25,7 +25,7 @@ namespace WindowsEnhancementSuite.Forms
             }
 
             this.trackBarJpegQuality.Value = Settings.Default.JpegCompression > 100 ? 70 : Settings.Default.JpegCompression;
-            this.radioButtonJpeg.Checked = Settings.Default.ImageSaveFormat == 1;
+            this.radioButtonJpeg.Checked = Settings.Default.ImageSaveFormat == 1;            
 
             this.textBoxHotkeyClipboard_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.CliboardHotkey));
             this.textBoxHotkeyTextfile_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.TextfileHotkey));
@@ -91,6 +91,11 @@ namespace WindowsEnhancementSuite.Forms
         private void textBoxHotkeyBrowserHistory_KeyDown(object sender, KeyEventArgs e)
         {
             this.textBoxHotkeyBrowserHistory.Text = this.setHotKey(e, out this.showBrowserHistory);
+        }
+
+        private void radioButtonJpeg_CheckedChanged(object sender, EventArgs e)
+        {
+            this.trackBarJpegQuality.Enabled = ((RadioButton)sender).Checked;
         }
 
         private string setHotKey(KeyEventArgs e, out int keyCode)
