@@ -18,7 +18,6 @@ namespace WindowsEnhancementSuite.Helper
                     if (Utils.GetFreePath(@"NewTextFile", "txt", out textFilePath))
                     {
                         File.Create(textFilePath).Dispose();
-
                         if (String.IsNullOrWhiteSpace(Settings.Default.TextApplication))
                         {
                             Process.Start(textFilePath);
@@ -34,7 +33,7 @@ namespace WindowsEnhancementSuite.Helper
                 }
                 catch (Win32Exception)
                 {
-                }
+                }                
             });
 
             return true;
