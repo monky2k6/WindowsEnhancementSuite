@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Web;
 using SHDocVw;
 
 namespace WindowsEnhancementSuite.Helper.Windows
@@ -22,8 +20,7 @@ namespace WindowsEnhancementSuite.Helper.Windows
                 {
                     if (Path.GetFileNameWithoutExtension(currentExplorer.FullName).ToLower().Equals("explorer"))
                     {
-                        string path = new Uri(currentExplorer.LocationURL).LocalPath;
-                        return HttpUtility.UrlDecode(path, Encoding.Default);
+                        return Utils.DecodeUrl(new Uri(currentExplorer.LocationURL));
                     }
                 }
             }

@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Web;
 using WindowsEnhancementSuite.Helper.Windows;
 
 namespace WindowsEnhancementSuite.Helper
@@ -37,6 +39,12 @@ namespace WindowsEnhancementSuite.Helper
             var processes = Process.GetProcessesByName(currentProcess.ProcessName);
 
             return processes.Any(p => p.Id != currentProcess.Id);
+        }
+
+        public static string DecodeUrl(Uri url)
+        {
+            string path = url.LocalPath.Replace("+", "%2B");
+            return HttpUtility.UrlDecode(path, Encoding.Default);
         }
     }
 }

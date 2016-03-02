@@ -29,7 +29,7 @@ namespace WindowsEnhancementSuite.Services
 
         public bool ShowExplorerHistory()
         {
-            // Todo: Check if we're on the Desktop
+            // Todo: Check if we're not in a Game/FullScreen Application
             var historyList = this.historyQueue.OrderByDescending(h => h.VisitDate).Select(h => h.Path).ToList();
             ThreadHelper.RunAsStaThread(() => Application.Run(new HistoryForm(historyList)));
             return true;
@@ -51,7 +51,7 @@ namespace WindowsEnhancementSuite.Services
                         explorer.NavigateComplete2 += this.windowsExplorerOnNavigateComplete2;
                         
                         if (String.IsNullOrWhiteSpace(explorer.LocationURL)) continue;
-                        this.addExplorerPath(new Uri(explorer.LocationURL).LocalPath);
+                        this.addExplorerPath(Utils.DecodeUrl(new Uri(explorer.LocationURL)));
                     }
                 }
             }
