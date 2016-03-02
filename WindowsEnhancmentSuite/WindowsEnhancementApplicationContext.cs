@@ -1,19 +1,19 @@
-﻿using Open.WinKeyboardHook;
-using System;
+﻿using System;
 using System.Windows.Forms;
 using WindowsEnhancementSuite.Forms;
-using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
+using WindowsEnhancementSuite.Services;
+using Open.WinKeyboardHook;
 
 namespace WindowsEnhancementSuite
 {
     public class WindowsEnhancementApplicationContext : ApplicationContext
     {
         private NotifyIcon notifyIcon;
-        private readonly FileAndImageSaver fileAndImageSaver;
-        private readonly FileCreateHelper fileCreateHelper;
-        private readonly FileAndImageViewer fileAndImageViewer;
-        private readonly ExplorerBrowserHelper explorerBrowserHelper;
+        private readonly FileAndImageSaveService fileAndImageSaveService;
+        private readonly FileCreateService fileCreateService;
+        private readonly FileAndImageViewService fileAndImageViewService;
+        private readonly ExplorerBrowserService explorerBrowserService;
 
         private readonly KeyboardInterceptor keyboadHook;
 
@@ -26,10 +26,10 @@ namespace WindowsEnhancementSuite
             this.keyboadHook.StartCapturing();
 
             // Services initialisieren
-            this.fileAndImageSaver = new FileAndImageSaver();
-            this.fileCreateHelper = new FileCreateHelper();
-            this.fileAndImageViewer = new FileAndImageViewer();
-            this.explorerBrowserHelper = new ExplorerBrowserHelper();
+            this.fileAndImageSaveService = new FileAndImageSaveService();
+            this.fileCreateService = new FileCreateService();
+            this.fileAndImageViewService = new FileAndImageViewService();
+            this.explorerBrowserService = new ExplorerBrowserService();
 
             // TrayIcon etc. initalisieren
             this.initializeComponents();
@@ -44,7 +44,7 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.CliboardHotkey)
                 {
-                    keyEventArgs.Handled = this.fileAndImageSaver.SaveClipboardInFile();
+                    keyEventArgs.Handled = this.fileAndImageSaveService.SaveClipboardInFile();
                     return;
                 }
             }
@@ -53,7 +53,7 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.TextfileHotkey)
                 {
-                    keyEventArgs.Handled = this.fileCreateHelper.CreateAndOpenTextfile();
+                    keyEventArgs.Handled = this.fileCreateService.CreateAndOpenTextfile();
                     return;
                 }
             }
@@ -62,7 +62,7 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowHotkey)
                 {
-                    keyEventArgs.Handled = this.fileAndImageViewer.ShowClipboardContent();
+                    keyEventArgs.Handled = this.fileAndImageViewService.ShowClipboardContent();
                     return;
                 }
             }
@@ -71,7 +71,7 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowBrowserHistory)
                 {
-                    keyEventArgs.Handled = this.explorerBrowserHelper.ShowExplorerHistory();
+                    keyEventArgs.Handled = this.explorerBrowserService.ShowExplorerHistory();
                     return;
                 }
             }
