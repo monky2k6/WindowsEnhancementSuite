@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using WindowsEnhancementSuite.Helper.Windows;
 
 namespace WindowsEnhancementSuite.Helper
@@ -27,6 +29,14 @@ namespace WindowsEnhancementSuite.Helper
             }
 
             return false;
+        }
+
+        public static bool IsProcessRunning()
+        {
+            var currentProcess = Process.GetCurrentProcess();
+            var processes = Process.GetProcessesByName(currentProcess.ProcessName);
+
+            return processes.Any(p => p.Id != currentProcess.Id);
         }
     }
 }
