@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using WindowsEnhancementSuite.Services;
 
 namespace WindowsEnhancementSuite
 {
@@ -11,6 +12,9 @@ namespace WindowsEnhancementSuite
         [STAThread]
         static void Main()
         {
+            var uacAssistService = new UacAssistService(args);
+            if (uacAssistService.Process()) return;
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new WindowsEnhancementApplicationContext());
