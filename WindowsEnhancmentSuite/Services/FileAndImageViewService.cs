@@ -172,7 +172,7 @@ namespace WindowsEnhancementSuite.Services
 
                 this.MouseWheel += (sender, e) =>
                 {
-                    if (!viewPictureBox.Enabled) return;
+                    if (!picturePanel.Enabled) return;
 
                     var originalImage = (Image)viewPictureBox.Tag;
 
@@ -200,7 +200,7 @@ namespace WindowsEnhancementSuite.Services
 
                 this.Location = getFormLocation(this.ClientSize, screenSize);
 
-                this.AttachToolBar(() => Clipboard.SetImage(image), viewPictureBox);
+                this.AttachToolBar(() => Clipboard.SetImage(image), picturePanel);
             }
 
             public WatchForm(StringCollection fileList)
