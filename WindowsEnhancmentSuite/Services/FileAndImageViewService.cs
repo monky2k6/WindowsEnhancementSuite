@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Helper;
+using WindowsEnhancementSuite.Helper.Windows;
 using WindowsEnhancementSuite.Properties;
 
 namespace WindowsEnhancementSuite.Services
@@ -15,44 +16,39 @@ namespace WindowsEnhancementSuite.Services
     {
         public bool ShowClipboardContent()
         {
-            if (Clipboard.ContainsText())
-            {
-                this.showText();
-                return true;
-            }
-
-            if (Clipboard.ContainsImage())
-            {
-                this.showImage();
-                return true;
-            }
-
-            if (Clipboard.ContainsFileDropList())
-            {
-                this.showFileDropList();
-                return true;
-            }
+            if (this.showText()) return true;
+            if (this.showImage()) return true;
+            if (this.showFileDropList()) return true;
 
             return false;
         }
 
-        private void showText()
+        private bool showText()
         {
-            string clipboard = Clipboard.GetText();
+            if (!Clipboard.ContainsText()) return false;
+            string clipboard = Clipboard.GetText();            
             ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(clipboard)));
+
+            return true;
         }
 
-        private void showImage()
+        private bool showImage()
         {
+            if (!Clipboard.ContainsImage()) return false;
             var imageData = Clipboard.GetImage();
-            if (imageData == null) return;
+            if (imageData == null) return false;
             ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(imageData)));
+
+            return true;
         }
 
-        private void showFileDropList()
+        private bool showFileDropList()
         {
+            if (!Clipboard.ContainsFileDropList()) return false;
             var fileList = Clipboard.GetFileDropList();
             ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(fileList)));
+
+            return true;
         }
 
         private sealed class WatchForm : Form
@@ -60,6 +56,57 @@ namespace WindowsEnhancementSuite.Services
             private const string NODE_TYPE_EXECUTABLE = "Executable";
             private const string NODE_TYPE_FOLDER = "Folder";
             private const string NODE_TYPE_OTHER = "Other";
+
+            private const int MENU_CLIPBOARD = 0x1;
+            private const int MENU_TOPMOST = 0x2;
+            private const int MENU_LOCK = 0x3;
+
+            private IntPtr menuHandle;
+            private readonly Action clipboardAction;
+            private readonly Control lockControl;
+
+            protected override void OnHandleCreated(EventArgs e)
+            {
+                base.OnHandleCreated(e);
+
+                // Expand SystemMenu 
+                menuHandle = WindowsMethods.GetFormMenuHandle(this.Handle);
+                WindowsMethods.AddFormMenuSeparator(menuHandle);
+                WindowsMethods.AddFormMenuItem(menuHandle, MENU_CLIPBOARD, "Copy to &Clipboard");
+                WindowsMethods.AddFormMenuSeparator(menuHandle);
+                WindowsMethods.AddFormMenuItem(menuHandle, MENU_TOPMOST, "TopMost");
+                WindowsMethods.AddFormMenuItem(menuHandle, MENU_LOCK, "Lock");
+            }
+
+            protected override void WndProc(ref Message m)
+            {
+                base.WndProc(ref m);
+
+                #region Handle SystemMenu
+                if (WindowsMethods.CheckMenuEvent(m, MENU_CLIPBOARD))
+                {
+                    if (clipboardAction != null) clipboardAction.Invoke();
+                    return;
+                }
+
+                if (WindowsMethods.CheckMenuEvent(m, MENU_TOPMOST))
+                {
+                    this.TopMost = !this.TopMost;
+                    WindowsMethods.SetFormMenuCheckBox(menuHandle, MENU_TOPMOST, this.TopMost);
+                    return;
+                }
+
+                if (WindowsMethods.CheckMenuEvent(m, MENU_LOCK))
+                {
+                    if (this.lockControl != null)
+                    {
+                        this.lockControl.Enabled = !this.lockControl.Enabled;
+                        WindowsMethods.SetFormMenuCheckBox(menuHandle, MENU_LOCK, !this.lockControl.Enabled);
+                        return;
+                    }
+                }
+                #endregion
+            }
 
             private void init()
             {
@@ -81,6 +128,9 @@ namespace WindowsEnhancementSuite.Services
 
                 this.Size = formSize;
 
+                this.KeyDown += onKeyDown;
+                this.KeyPreview = true;
+
                 this.Shown += (sender, args) =>
                 {
                     this.TopMost = true;
@@ -88,6 +138,16 @@ namespace WindowsEnhancementSuite.Services
                     this.TopMost = false;
                 };
                 this.Disposed += (sender, args) => GC.Collect();
+            }
+
+            private void onKeyDown(object sender, KeyEventArgs keyEventArgs)
+            {
+                if (keyEventArgs.Handled) return;
+                if (keyEventArgs.Alt && keyEventArgs.KeyCode == Keys.C)
+                {
+                    keyEventArgs.Handled = true;
+                    if (clipboardAction != null) clipboardAction.Invoke();
+                }
             }
 
             public WatchForm(string text)
@@ -140,7 +200,8 @@ namespace WindowsEnhancementSuite.Services
                     invokeAction();
                 });
 
-                this.AttachToolBar(setCurrentText, codeHighlighter, false);
+                this.clipboardAction = setCurrentText;
+                this.lockControl = codeHighlighter;
             }
 
             public WatchForm(Image image)
@@ -200,7 +261,8 @@ namespace WindowsEnhancementSuite.Services
 
                 this.Location = getFormLocation(this.ClientSize, screenSize);
 
-                this.AttachToolBar(() => Clipboard.SetImage(image), picturePanel);
+                this.clipboardAction = () => Clipboard.SetImage(image);
+                this.lockControl = picturePanel;
             }
 
             public WatchForm(StringCollection fileList)
@@ -299,7 +361,8 @@ namespace WindowsEnhancementSuite.Services
                     this.setNode(treeView.Nodes.Add(fileItem, Path.GetFileName(fileItem)), imageList);
                 }
 
-                this.AttachToolBar(() => Clipboard.SetFileDropList(fileList), treeView);
+                this.clipboardAction = () => Clipboard.SetFileDropList(fileList);
+                this.lockControl = treeView;
             }
 
             private Point getFormLocation(Size formSize, Size formMaxSize)

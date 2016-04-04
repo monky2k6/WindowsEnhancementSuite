@@ -40,6 +40,8 @@ namespace WindowsEnhancementSuite
 
         private void keyboadHookOnKeyDown(object sender, KeyEventArgs keyEventArgs)
         {
+            if (keyEventArgs.Handled) return;
+
             if (Settings.Default.CliboardHotkey > 0)
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.CliboardHotkey)
