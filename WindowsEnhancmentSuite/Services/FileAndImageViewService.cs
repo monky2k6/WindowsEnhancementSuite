@@ -71,7 +71,7 @@ namespace WindowsEnhancementSuite.Services
                 this.Location = getFormLocation(formSize, SystemInformation.VirtualScreen.Size);
 
                 this.MinimizeBox = true;
-                this.MinimumSize = new Size(300, 250);
+                this.MinimumSize = new Size(180, 100);
                 this.MaximumSize = SystemInformation.VirtualScreen.Size;
 
                 this.Icon = Resources.WES;
