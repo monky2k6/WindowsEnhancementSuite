@@ -209,6 +209,8 @@ namespace WindowsEnhancementSuite.Services
                 this.init();
                 this.Text = "Image";
 
+                var originalImage = image;
+
                 var picturePanel = new Panel
                 {
                     AutoScroll = true,
@@ -227,15 +229,12 @@ namespace WindowsEnhancementSuite.Services
                     Anchor = AnchorStyles.Top | AnchorStyles.Left,
                     Size = this.ClientSize,
                     Visible = true,
-                    Tag = image,
                     Image = image
                 };
 
-                this.MouseWheel += (sender, e) =>
+                picturePanel.MouseWheel += (sender, e) =>
                 {
                     if (!picturePanel.Enabled) return;
-
-                    var originalImage = (Image)viewPictureBox.Tag;
 
                     int changeX = viewPictureBox.Image.Width * e.Delta / 1000;
                     int changeY = viewPictureBox.Image.Height * e.Delta / 1000;
@@ -248,6 +247,14 @@ namespace WindowsEnhancementSuite.Services
                     var newImage = new Bitmap(originalImage, newSize);
                     viewPictureBox.Image = newImage;
                 };
+
+                var restorePicture = new MouseEventHandler((sender, args) =>
+                {
+                    viewPictureBox.Image = originalImage;
+                });
+
+                viewPictureBox.MouseDoubleClick += restorePicture;
+                picturePanel.MouseDoubleClick += restorePicture;
 
                 picturePanel.Controls.Add(viewPictureBox);
 
