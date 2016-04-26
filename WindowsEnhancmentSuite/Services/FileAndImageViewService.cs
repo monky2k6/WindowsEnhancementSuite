@@ -262,8 +262,8 @@ namespace WindowsEnhancementSuite.Services
 
                 // Bild soweit wie möglich maximieren
                 var screenSize = this.MaximumSize;
-                int x = image.Width > screenSize.Width ? screenSize.Width : image.Width;
-                int y = image.Height > screenSize.Height ? screenSize.Height : image.Height;
+                int x = Math.Min(image.Width, screenSize.Width);
+                int y = Math.Min(image.Height, screenSize.Height);
                 this.ClientSize = new Size(x, y);
 
                 this.Location = getFormLocation(this.ClientSize, screenSize);
