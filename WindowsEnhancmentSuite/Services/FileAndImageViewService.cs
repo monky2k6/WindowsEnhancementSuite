@@ -200,6 +200,18 @@ namespace WindowsEnhancementSuite.Services
                     invokeAction();
                 });
 
+                var scintillaStyle = codeHighlighter.Styles.First();
+                using (var font = new Font(scintillaStyle.Font, scintillaStyle.SizeF))
+                {
+                    var textSize = TextRenderer.MeasureText(text, font);
+                    var screenSize = this.MaximumSize;
+                    int x = Math.Min(textSize.Width, screenSize.Width);
+                    int y = Math.Min(textSize.Height, screenSize.Height) + statusStrip.Height;
+                    this.ClientSize = new Size(x, y);
+                }
+
+                this.Location = getFormLocation(this.ClientSize, this.MaximumSize);
+
                 this.clipboardAction = setCurrentText;
                 this.lockControl = codeHighlighter;
             }
