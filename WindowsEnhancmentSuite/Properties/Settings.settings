@@ -20,8 +20,11 @@
     <Setting Name="ShowHotkey" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">196675</Value>
     </Setting>
-    <Setting Name="ShowBrowserHistory" Type="System.Int32" Scope="User">
+    <Setting Name="ShowBrowserHistoryHotkey" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">120</Value>
+    </Setting>
+    <Setting Name="ShowCommandBarHotkey" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">131104</Value>
     </Setting>
   </Settings>
 </SettingsFile>
