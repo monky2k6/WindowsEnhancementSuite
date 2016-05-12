@@ -47,6 +47,8 @@
             this.textBoxHotkeyClipboard = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBoxHotkeyCommandBar = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
@@ -155,7 +157,7 @@
             // 
             // buttonSave
             // 
-            this.buttonSave.Location = new System.Drawing.Point(210, 306);
+            this.buttonSave.Location = new System.Drawing.Point(210, 333);
             this.buttonSave.Name = "buttonSave";
             this.buttonSave.Size = new System.Drawing.Size(75, 23);
             this.buttonSave.TabIndex = 2;
@@ -165,6 +167,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.textBoxHotkeyCommandBar);
+            this.groupBox3.Controls.Add(this.label5);
             this.groupBox3.Controls.Add(this.label4);
             this.groupBox3.Controls.Add(this.textBoxHotkeyBrowserHistory);
             this.groupBox3.Controls.Add(this.textBoxHotkeyWatch);
@@ -175,7 +179,7 @@
             this.groupBox3.Controls.Add(this.label1);
             this.groupBox3.Location = new System.Drawing.Point(12, 182);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(273, 118);
+            this.groupBox3.Size = new System.Drawing.Size(273, 145);
             this.groupBox3.TabIndex = 3;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Hotkeys";
@@ -197,7 +201,7 @@
             this.textBoxHotkeyBrowserHistory.Name = "textBoxHotkeyBrowserHistory";
             this.textBoxHotkeyBrowserHistory.ReadOnly = true;
             this.textBoxHotkeyBrowserHistory.Size = new System.Drawing.Size(135, 20);
-            this.textBoxHotkeyBrowserHistory.TabIndex = 6;
+            this.textBoxHotkeyBrowserHistory.TabIndex = 4;
             this.textBoxHotkeyBrowserHistory.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxHotkeyBrowserHistory_KeyDown);
             // 
             // textBoxHotkeyWatch
@@ -208,7 +212,7 @@
             this.textBoxHotkeyWatch.Name = "textBoxHotkeyWatch";
             this.textBoxHotkeyWatch.ReadOnly = true;
             this.textBoxHotkeyWatch.Size = new System.Drawing.Size(135, 20);
-            this.textBoxHotkeyWatch.TabIndex = 5;
+            this.textBoxHotkeyWatch.TabIndex = 2;
             this.textBoxHotkeyWatch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxHotkeyWatch_KeyDown);
             // 
             // label3
@@ -239,7 +243,7 @@
             this.textBoxHotkeyClipboard.Name = "textBoxHotkeyClipboard";
             this.textBoxHotkeyClipboard.ReadOnly = true;
             this.textBoxHotkeyClipboard.Size = new System.Drawing.Size(135, 20);
-            this.textBoxHotkeyClipboard.TabIndex = 2;
+            this.textBoxHotkeyClipboard.TabIndex = 1;
             this.textBoxHotkeyClipboard.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxHotkeyClipboard_KeyDown);
             // 
             // label2
@@ -260,11 +264,30 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Clipboard to File:";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 120);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(103, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Show CommandBar:";
+            // 
+            // textBoxHotkeyCommandBar
+            // 
+            this.textBoxHotkeyCommandBar.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.textBoxHotkeyCommandBar.Location = new System.Drawing.Point(132, 117);
+            this.textBoxHotkeyCommandBar.Name = "textBoxHotkeyCommandBar";
+            this.textBoxHotkeyCommandBar.ReadOnly = true;
+            this.textBoxHotkeyCommandBar.Size = new System.Drawing.Size(135, 20);
+            this.textBoxHotkeyCommandBar.TabIndex = 9;
+            this.textBoxHotkeyCommandBar.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxHotkeyCommandBar_KeyDown);
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(297, 341);
+            this.ClientSize = new System.Drawing.Size(297, 368);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.groupBox2);
@@ -305,5 +328,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxHotkeyBrowserHistory;
+        private System.Windows.Forms.TextBox textBoxHotkeyCommandBar;
+        private System.Windows.Forms.Label label5;
     }
 }

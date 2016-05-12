@@ -10,6 +10,7 @@ namespace WindowsEnhancementSuite.Forms
         private int textHotkey;
         private int showHotkey;
         private int showBrowserHistory;
+        private int showCommandBar;
 
         public SettingsForm()
         {
@@ -30,7 +31,8 @@ namespace WindowsEnhancementSuite.Forms
             this.textBoxHotkeyClipboard_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.CliboardHotkey));
             this.textBoxHotkeyTextfile_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.TextfileHotkey));
             this.textBoxHotkeyWatch_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowHotkey));
-            this.textBoxHotkeyBrowserHistory_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowBrowserHistory));
+            this.textBoxHotkeyBrowserHistory_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowBrowserHistoryHotkey));
+            this.textBoxHotkeyCommandBar_KeyDown(null, new KeyEventArgs((Keys)Settings.Default.ShowCommandBarHotkey));
         }
 
         private void radioButtonDefaultTextEditor_CheckedChanged(object sender, EventArgs e)
@@ -67,7 +69,8 @@ namespace WindowsEnhancementSuite.Forms
             Settings.Default.TextfileHotkey = this.textHotkey;
             Settings.Default.CliboardHotkey = this.clipboardHotkey;
             Settings.Default.ShowHotkey = this.showHotkey;
-            Settings.Default.ShowBrowserHistory = this.showBrowserHistory;
+            Settings.Default.ShowBrowserHistoryHotkey = this.showBrowserHistory;
+            Settings.Default.ShowCommandBarHotkey = this.showCommandBar;
 
             Settings.Default.Save();
             this.Close();
@@ -91,6 +94,11 @@ namespace WindowsEnhancementSuite.Forms
         private void textBoxHotkeyBrowserHistory_KeyDown(object sender, KeyEventArgs e)
         {
             this.textBoxHotkeyBrowserHistory.Text = this.setHotKey(e, out this.showBrowserHistory);
+        }
+
+        private void textBoxHotkeyCommandBar_KeyDown(object sender, KeyEventArgs e)
+        {
+            this.textBoxHotkeyCommandBar.Text = this.setHotKey(e, out this.showCommandBar);
         }
 
         private void radioButtonJpeg_CheckedChanged(object sender, EventArgs e)
