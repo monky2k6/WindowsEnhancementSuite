@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using WindowsEnhancementSuite.Enums;
 using WindowsEnhancementSuite.Helper;
+using WindowsEnhancementSuite.ValueObjects;
 using SHDocVw;
 
 namespace WindowsEnhancementSuite.Services
@@ -16,6 +19,14 @@ namespace WindowsEnhancementSuite.Services
 
         private readonly ShellWindows shellWindows;
         private Queue<ExplorerHistory> historyQueue;
+
+        public ReadOnlyCollection<CommandBoxEntry> ExplorerHistories
+        {
+            get
+            {
+                return historyQueue.Select(e => new CommandBoxEntry(e.Path, CommandEntryKind.Directory)).ToList().AsReadOnly();
+            }
+        }
 
         public ExplorerBrowserService()
         {
@@ -62,7 +73,7 @@ namespace WindowsEnhancementSuite.Services
 
         private void addExplorerPath(string path)
         {
-            // Deduplizieren
+            // Deduplicating
             this.historyQueue = new Queue<ExplorerHistory>(this.historyQueue.Where(h => h.Path != path));
 
             while (this.historyQueue.Count >= MAX_HISTORY)

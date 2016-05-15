@@ -14,6 +14,7 @@ namespace WindowsEnhancementSuite
         private readonly FileCreateService fileCreateService;
         private readonly FileAndImageViewService fileAndImageViewService;
         private readonly ExplorerBrowserService explorerBrowserService;
+        private readonly CommandBarService commandBarService;
 
         private readonly KeyboardInterceptor keyboadHook;
 
@@ -30,6 +31,7 @@ namespace WindowsEnhancementSuite
             this.fileCreateService = new FileCreateService();
             this.fileAndImageViewService = new FileAndImageViewService();
             this.explorerBrowserService = new ExplorerBrowserService();
+            this.commandBarService = new CommandBarService();
 
             // TrayIcon etc. initalisieren
             this.initializeComponents();
@@ -46,7 +48,7 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.CliboardHotkey)
                 {
-                    keyEventArgs.Handled = this.fileAndImageSaveService.SaveClipboardInFile();
+                    keyEventArgs.SuppressKeyPress = this.fileAndImageSaveService.SaveClipboardInFile();
                     return;
                 }
             }
@@ -55,7 +57,7 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.TextfileHotkey)
                 {
-                    keyEventArgs.Handled = this.fileCreateService.CreateAndOpenTextfile();
+                    keyEventArgs.SuppressKeyPress = this.fileCreateService.CreateAndOpenTextfile();
                     return;
                 }
             }
@@ -64,16 +66,25 @@ namespace WindowsEnhancementSuite
             {
                 if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowHotkey)
                 {
-                    keyEventArgs.Handled = this.fileAndImageViewService.ShowClipboardContent();
+                    keyEventArgs.SuppressKeyPress = this.fileAndImageViewService.ShowClipboardContent();
                     return;
                 }
             }
 
-            if (Settings.Default.ShowBrowserHistory > 0)
+            if (Settings.Default.ShowBrowserHistoryHotkey > 0)
             {
-                if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowBrowserHistory)
+                if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowBrowserHistoryHotkey)
                 {
-                    keyEventArgs.Handled = this.explorerBrowserService.ShowExplorerHistory();
+                    keyEventArgs.SuppressKeyPress = this.explorerBrowserService.ShowExplorerHistory();
+                    return;
+                }
+            }
+
+            if (Settings.Default.ShowCommandBarHotkey > 0)
+            {
+                if (keyEventArgs.KeyData == (Keys)Settings.Default.ShowCommandBarHotkey)
+                {
+                    keyEventArgs.SuppressKeyPress = this.commandBarService.ShowCommandBar();
                     return;
                 }
             }

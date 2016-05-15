@@ -1,0 +1,15 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CommandBar" Width="800" Height="600"
+        AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        FocusManager.FocusedElement="{Binding ElementName=commandTextBox}">
+    <Window.Background>
+        <SolidColorBrush Opacity="0.6" Color="Black"/>
+    </Window.Background>
+    <Grid>
+        <ListBox Name="commandListBox" Margin="200,100,200,250" VerticalAlignment="Top" Background="#00000000" Foreground="White"
+                 FontFamily="Segoe UI Semibold" FontSize="22" IsSynchronizedWithCurrentItem="True" BorderThickness="0"/>
+        <TextBox Name="commandTextBox" FontFamily="Arial" FontSize="40" VerticalAlignment="Bottom" Margin="100,0,100,100" Padding="10,5"/>
+    </Grid>
+</Window>

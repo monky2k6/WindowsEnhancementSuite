@@ -61,6 +61,26 @@ namespace WindowsEnhancementSuite.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;Window x:Class=&quot;WpfApplication3.MainWindow&quot;
+        ///        xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+        ///        xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+        ///        Title=&quot;MainWindow&quot; Height=&quot;350&quot; Width=&quot;525&quot;
+        ///        AllowsTransparency=&quot;True&quot; WindowStyle=&quot;None&quot;&gt;
+        ///    &lt;Window.Background&gt;
+        ///        &lt;SolidColorBrush Opacity=&quot;0.5&quot; Color=&quot;White&quot;/&gt;
+        ///    &lt;/Window.Background&gt;
+        ///    &lt;Grid&gt;
+        ///        &lt;Button Width=&quot;200&quot; Height=&quot;50&quot;&gt;button&lt;/Button&gt;
+        ///    &lt;/Grid&gt;
+        ///&lt;/Window&gt;.
+        /// </summary>
+        internal static string CommandBar {
+            get {
+                return ResourceManager.GetString("CommandBar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon executable {
