@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using WindowsEnhancementSuite.Enums;
 using WindowsEnhancementSuite.Extensions;
+using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
 using WindowsEnhancementSuite.ValueObjects;
 using TextBox = System.Windows.Controls.TextBox;
@@ -19,16 +25,26 @@ namespace WindowsEnhancementSuite.Services
 {
     public class CommandBarService
     {
+        // WPF Controls
         private readonly Window commandBarWindow;
         private readonly TextBox commandTextBox;
         private readonly ListBox commandListBox;
 
-        private readonly ObservableCollection<CommandBoxEntry> commandBoxEntries;
+        // Service Variables
+        private readonly ObservableCollection<CommandBarEntry> commandBoxEntries;
+        private readonly List<CommandBarEntry> histories;
         private CancellationTokenSource cancellationTokenSource;
         private string searchText;
         private string searchUserParameter;
 
-        public CommandBarService()
+        // Additional Service Collections
+        private readonly CommandBarOptions commandBarOptions;
+
+        public CommandBarService() : this(new CommandBarOptions())
+        {
+        }
+
+        public CommandBarService(CommandBarOptions options)
         {
             using (var stream = Resources.CommandBar.ToStream<MemoryStream>())
             {
@@ -36,8 +52,12 @@ namespace WindowsEnhancementSuite.Services
             }
 
             if (commandBarWindow == null) return;
+            commandBarWindow.Topmost = true;
+            commandBarWindow.ShowActivated = true;
             commandBarWindow.Activated += (sender, args) => commandTextBox.SelectAll();
-
+            
+            commandBarOptions = options;
+            histories = new List<CommandBarEntry>();
             cancellationTokenSource = new CancellationTokenSource();
 
             // Get all WPF-Controls
@@ -52,15 +72,14 @@ namespace WindowsEnhancementSuite.Services
             commandListBox = commandBarWindow.FindName("commandListBox") as ListBox;
             if (commandListBox != null)
             {
-                commandBoxEntries = new ObservableCollection<CommandBoxEntry>();
+                commandBoxEntries = new ObservableCollection<CommandBarEntry>();
                 commandListBox.ItemsSource = commandBoxEntries;
-                commandListBox.DataContextChanged += commandListBoxOnDataContextChanged;
-            }
-        }        
+                commandListBox.Items.SortDescriptions.Add(new SortDescription("Rank", ListSortDirection.Descending));
+                commandListBox.Items.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
 
-        private void commandListBoxOnDataContextChanged(object sender, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
-        {
-            commandListBox.Items.MoveCurrentToFirst();
+                commandListBox.KeyDown += commandTextBoxOnKeyDown;
+                commandListBox.MouseDoubleClick += commandListBoxOnMouseDoubleClick;
+            }
         }
 
         public bool ShowCommandBar()
@@ -90,16 +109,41 @@ namespace WindowsEnhancementSuite.Services
         {
             if (keyEventArgs.Key == Key.Escape)
             {
-                commandBarWindow.Hide();
+                this.cancellationTokenSource.Cancel();
+                commandBarWindow.Hide();                
                 return;
             }
 
             if (keyEventArgs.Key == Key.Return || keyEventArgs.Key == Key.Enter)
             {
-                var commandEntry = (commandListBox.Items.CurrentItem as CommandBoxEntry);
-                if (commandEntry == null) return;
+                try
+                {
+                    this.cancellationTokenSource.Cancel();
+                    var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry) ??
+                                       new CommandBarEntry(searchText + searchUserParameter, CommandEntryKind.History);
 
-                executeCommand(commandEntry, keyEventArgs.KeyboardDevice.Modifiers == ModifierKeys.Shift);
+                    executeCommand(commandEntry, keyEventArgs.KeyboardDevice.Modifiers == ModifierKeys.Shift);
+                }
+                finally
+                {                    
+                    commandBarWindow.Hide();                    
+                }
+            }
+        }
+
+        private void commandListBoxOnMouseDoubleClick(object sender, MouseButtonEventArgs mouseButtonEventArgs)
+        {
+            try
+            {
+                this.cancellationTokenSource.Cancel();
+                var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry) ??
+                                   new CommandBarEntry(searchText + searchUserParameter, CommandEntryKind.History);
+
+                executeCommand(commandEntry, false);
+            }
+            finally
+            {
+                commandBarWindow.Hide();
             }
         }
 
@@ -108,20 +152,23 @@ namespace WindowsEnhancementSuite.Services
             this.search();
         }
 
-        private void executeCommand(CommandBoxEntry entry, bool asAdmin)
+        private void executeCommand(CommandBarEntry entry, bool asAdmin)
         {
-            string command = entry.Command.ConditionalAttach(entry.Kind != CommandEntryKind.Directory, searchUserParameter);
-
-            if (asAdmin)
+            Task.Run(() =>
             {
-                // Start as Admin
-                //Process.Start(commandEntry.Command);
-                MessageBox.Show("Admin: " + command);
-                return;
-            }
+                if (entry.Kind == CommandEntryKind.History && histories.All(e => e.Command != entry.Command)) histories.Add(entry);
+                if (entry.Kind == CommandEntryKind.Directory || entry.Kind == CommandEntryKind.Explorer) searchUserParameter = "";
+                RankingHelper.IncreaseRank(entry);
 
-            //Process.Start(commandEntry.Command);
-            MessageBox.Show(command);   
+                if (asAdmin)
+                {
+                    // Start as Admin
+                    UacAssistService.RunAsAdmin(entry.Command, searchUserParameter.Trim());
+                    return;
+                }
+
+                Process.Start(new ProcessStartInfo(entry.Command, searchUserParameter.Trim()));
+            });
         }
 
         #region Search
@@ -145,21 +192,49 @@ namespace WindowsEnhancementSuite.Services
                 searchText = searchText.Substring(0, space);
             }
 
+            // Start individual searches, each starts a new Task
+            searchCommandHistory(cancelToken);
             searchLastVisited(cancelToken);
             searchSystemPath(cancelToken);
             searchFileSystem(cancelToken);
         }
 
-        private void searchLastVisited(CancellationToken token)
+        private void searchCommandHistory(CancellationToken token)
         {
+            Task.Run(() =>
+            {
+                foreach (var entry in histories)
+                {
+                    if (token.IsCancellationRequested) return;
 
+                    if (entry.Command.ToLower().Contains(searchText)) addCommandBarEntry(entry);
+                }
+            }, token);
+        }
+
+        private void searchLastVisited(CancellationToken token)
+        {            
+            Task.Run(() =>
+            {
+                if (commandBarOptions.ExplorerService == null) return;
+                foreach (var entry in commandBarOptions.ExplorerService.ExplorerHistories)
+                {
+                    if (token.IsCancellationRequested) return;
+
+                    if (entry.Command.ToLower().Contains(searchText)) addCommandBarEntry(entry);
+                }
+            }, token);
         }
 
         private void searchSystemPath(CancellationToken token)
         {
-            string searchTerm = String.Format("{0}*.exe", searchText);
             Task.Run(() =>
             {
+                string systemSearch = Regex.Replace(searchText, "[^a-zA-Z0-9 !_-]", "", RegexOptions.Compiled);
+                if (String.IsNullOrWhiteSpace(systemSearch)) return;
+
+                string searchTerm = String.Format("{0}*.exe", systemSearch);
+
                 string enviromentPath = Environment.GetEnvironmentVariable("PATH");
                 if (String.IsNullOrWhiteSpace(enviromentPath)) return;
 
@@ -175,13 +250,7 @@ namespace WindowsEnhancementSuite.Services
                         foreach (string file in files)
                         {
                             if (token.IsCancellationRequested) return;
-
-                            var entry = new CommandBoxEntry(file, CommandEntryKind.File);
-                            commandListBox.Dispatcher.BeginInvoke((Action)delegate
-                            {
-                                this.commandBoxEntries.Add(entry);
-                                this.commandListBox.Items.MoveCurrentToFirst();
-                            });
+                            addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.Command, Path.GetFileNameWithoutExtension(file)));
                         }
                     }, token);
                 }
@@ -190,7 +259,58 @@ namespace WindowsEnhancementSuite.Services
 
         private void searchFileSystem(CancellationToken token)
         {
-            
+            Task.Run(() =>
+            {
+                string systemSearch = Regex.Replace(searchText, "[^a-zA-Z0-9 !_-]", "", RegexOptions.Compiled);
+                if (String.IsNullOrWhiteSpace(systemSearch)) return;
+
+                string searchTerm = String.Format("{0}*.*", systemSearch);
+
+                foreach (string path in commandBarOptions.SystemSearchPaths)
+                {
+                    if (token.IsCancellationRequested) return;
+
+                    // todo: Implement fast, ressource genlte FileSearch
+                    //searchFilesRecursive(path, searchTerm, token);
+                }
+            }, token);
+        }
+
+        private void addCommandBarEntry(CommandBarEntry entry)
+        {
+            commandListBox.Dispatcher.BeginInvoke((Action)delegate
+            {
+                this.commandBoxEntries.Add(entry);
+                this.commandListBox.Items.MoveCurrentToFirst();
+            });
+        }
+
+        private void searchFilesRecursive(string path, string pattern, CancellationToken token)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    foreach (string directory in Directory.GetDirectories(path))
+                    {
+                        if (token.IsCancellationRequested) return;
+                        searchFilesRecursive(directory, pattern, token);
+                    }
+                }
+                catch (UnauthorizedAccessException) { }
+                catch (PathTooLongException) { }  
+
+                try
+                {
+                    foreach (string file in Directory.GetFiles(path, pattern))
+                    {
+                        if (token.IsCancellationRequested) return;
+                        addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.File));
+                    }
+                }
+                catch (UnauthorizedAccessException) { }
+                catch (PathTooLongException) { }                
+            }, token);
         }
         #endregion
     }

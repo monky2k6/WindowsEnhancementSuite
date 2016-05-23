@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Text;
+using WindowsEnhancementSuite.Helper;
 
 namespace WindowsEnhancementSuite.Extensions
 {
@@ -20,6 +22,18 @@ namespace WindowsEnhancementSuite.Extensions
         {
             if (condition) return input + attachment;
             return input;
+        }
+
+        public static string GetMd5Hash(this string input)
+        {
+            var bytes = MD5Helper.ComputeMD5Hash(Encoding.Default.GetBytes(input));
+            var sb = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                sb.Append(b.ToString("X2"));
+            }
+
+            return sb.ToString();
         }
     }
 }

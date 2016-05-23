@@ -24,6 +24,17 @@ namespace WindowsEnhancementSuite.Services
             System.Diagnostics.Process.Start(processInfo);
         }
 
+        public static void RunAsAdmin(string command, string parameters)
+        {
+            var processInfo = new ProcessStartInfo(command, parameters)
+            {
+                Verb = "runas",
+                UseShellExecute = true
+            };
+
+            System.Diagnostics.Process.Start(processInfo);
+        }
+
         public UacAssistService(string[] parameter)
         {
             parameters = parameter;

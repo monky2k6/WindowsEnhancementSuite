@@ -26,5 +26,8 @@
     <Setting Name="ShowCommandBarHotkey" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">131104</Value>
     </Setting>
+    <Setting Name="CommandBarRankings" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

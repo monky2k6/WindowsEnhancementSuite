@@ -20,11 +20,11 @@ namespace WindowsEnhancementSuite.Services
         private readonly ShellWindows shellWindows;
         private Queue<ExplorerHistory> historyQueue;
 
-        public ReadOnlyCollection<CommandBoxEntry> ExplorerHistories
+        public ReadOnlyCollection<CommandBarEntry> ExplorerHistories
         {
             get
             {
-                return historyQueue.Select(e => new CommandBoxEntry(e.Path, CommandEntryKind.Directory)).ToList().AsReadOnly();
+                return historyQueue.Select(e => new CommandBarEntry(e.Path, CommandEntryKind.Explorer)).ToList().AsReadOnly();
             }
         }
 
@@ -60,7 +60,7 @@ namespace WindowsEnhancementSuite.Services
                     {
                         explorer.PutProperty("EventRegistered", true);
                         explorer.NavigateComplete2 += this.windowsExplorerOnNavigateComplete2;
-                        
+
                         if (String.IsNullOrWhiteSpace(explorer.LocationURL)) continue;
                         this.addExplorerPath(Utils.DecodeUrl(new Uri(explorer.LocationURL)));
                     }

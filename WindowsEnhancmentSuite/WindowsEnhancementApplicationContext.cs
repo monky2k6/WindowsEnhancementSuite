@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Configuration;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using WindowsEnhancementSuite.Forms;
+using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
 using WindowsEnhancementSuite.Services;
+using WindowsEnhancementSuite.ValueObjects;
 using Open.WinKeyboardHook;
 
 namespace WindowsEnhancementSuite
@@ -20,23 +25,31 @@ namespace WindowsEnhancementSuite
 
         public WindowsEnhancementApplicationContext()
         {
-            // Hotkeys initialisieren
+            // Initialize Hotkeys
             this.keyboadHook = new KeyboardInterceptor();
             this.keyboadHook.KeyDown += keyboadHookOnKeyDown;
 
             this.keyboadHook.StartCapturing();
 
-            // Services initialisieren
+            // Initialize Services
             this.fileAndImageSaveService = new FileAndImageSaveService();
             this.fileCreateService = new FileCreateService();
             this.fileAndImageViewService = new FileAndImageViewService();
             this.explorerBrowserService = new ExplorerBrowserService();
-            this.commandBarService = new CommandBarService();
 
-            // TrayIcon etc. initalisieren
+            // Initialize CommandBarService
+            RankingHelper.Initialize();
+            var commandBarOptions = new CommandBarOptions
+            {
+                ExplorerService = explorerBrowserService,
+                SystemSearchPaths = DriveInfo.GetDrives().Where(e => e.DriveType == DriveType.Fixed).Select(e => e.Name).ToArray()
+            };
+            this.commandBarService = new CommandBarService(commandBarOptions);
+
+            // Initialize TrayIcon etc.
             this.initializeComponents();
             
-            // Events hinzufügen
+            // Add Events
             Application.ApplicationExit += this.applicationOnApplicationExit;
         }
 
@@ -92,7 +105,7 @@ namespace WindowsEnhancementSuite
 
         private void initializeComponents()
         {
-            // Tray-Icon inkl. ContextMenu hinzufügen
+            // Activate Tray-Icon and include the ContextMenu
             this.notifyIcon = new NotifyIcon
             {
                 Visible = true,
@@ -109,9 +122,10 @@ namespace WindowsEnhancementSuite
 
         private void applicationOnApplicationExit(object sender, EventArgs eventArgs)
         {
-            // Alles entladen etc.            
+            // Deactivate KeyHooks
             this.notifyIcon.Visible = false;
             this.keyboadHook.StopCapturing();
+            RankingHelper.Save();
             Settings.Default.Save();
         }
 
