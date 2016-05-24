@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
+using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using System.Windows.Markup;
 using WindowsEnhancementSuite.Enums;
@@ -107,6 +108,16 @@ namespace WindowsEnhancementSuite.Services
 
         private void commandTextBoxOnKeyDown(object sender, KeyEventArgs keyEventArgs)
         {
+            if (keyEventArgs.Key == Key.Tab)
+            {
+                keyEventArgs.Handled = true;
+                var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry);
+                if (commandEntry == null) return;
+                if (commandEntry.Kind != CommandEntryKind.Directory && commandEntry.Kind != CommandEntryKind.File) return;
+                commandTextBox.Text = commandEntry.Command;
+                commandTextBox.CaretIndex = commandEntry.Name.Length;
+            }
+
             if (keyEventArgs.Key == Key.Escape)
             {
                 this.cancellationTokenSource.Cancel();
@@ -125,7 +136,7 @@ namespace WindowsEnhancementSuite.Services
                     executeCommand(commandEntry, keyEventArgs.KeyboardDevice.Modifiers == ModifierKeys.Shift);
                 }
                 finally
-                {                    
+                {
                     commandBarWindow.Hide();                    
                 }
             }
@@ -230,7 +241,7 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                string systemSearch = Regex.Replace(searchText, "[^a-zA-Z0-9 !_-]", "", RegexOptions.Compiled);
+                string systemSearch = Regex.Replace(searchText, "[^a-zA-Z0-9 !+_-]", "", RegexOptions.Compiled);
                 if (String.IsNullOrWhiteSpace(systemSearch)) return;
 
                 string searchTerm = String.Format("{0}*.exe", systemSearch);
@@ -261,18 +272,57 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                string systemSearch = Regex.Replace(searchText, "[^a-zA-Z0-9 !_-]", "", RegexOptions.Compiled);
-                if (String.IsNullOrWhiteSpace(systemSearch)) return;
+                string searchPath = Regex.Replace(searchText + searchUserParameter, "@[^a-zA-Z0-9 \\!+:_-]", "", RegexOptions.Compiled);
+                if (String.IsNullOrWhiteSpace(searchPath)) return;
 
-                string searchTerm = String.Format("{0}*.*", systemSearch);
+                if (!Path.IsPathRooted(searchPath)) return;
 
-                foreach (string path in commandBarOptions.SystemSearchPaths)
+                string searchWord = String.Empty;
+                if (searchPath.Contains("\\"))
                 {
-                    if (token.IsCancellationRequested) return;
-
-                    // todo: Implement fast, ressource genlte FileSearch
-                    //searchFilesRecursive(path, searchTerm, token);
+                    int charIndex = searchPath.LastIndexOf("\\") + 1;
+                    searchWord = searchPath.Substring(charIndex);
+                    searchPath = searchPath.Substring(0, charIndex);
                 }
+                
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        foreach (string dir in Directory.EnumerateDirectories(searchPath))
+                        {
+                            if (token.IsCancellationRequested) return;
+                            string dirName = new DirectoryInfo(dir).Name;
+                            if (dirName.ToLower().StartsWith(searchWord.ToLower()))
+                            {
+                                addCommandBarEntry(new CommandBarEntry(dir, CommandEntryKind.Directory));
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException) { }
+                    catch (PathTooLongException) { }
+                    catch (DirectoryNotFoundException) { }
+                }, token);
+
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        foreach (string file in Directory.EnumerateFiles(searchPath))
+                        {
+                            if (token.IsCancellationRequested) return;
+                            string dirName = new FileInfo(file).Name;
+                            if (dirName.ToLower().StartsWith(searchWord.ToLower()))
+                            {
+                                addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.File));
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException) { }
+                    catch (PathTooLongException) { }
+                    catch (DirectoryNotFoundException) { }
+                }, token);
+
             }, token);
         }
 
@@ -283,34 +333,6 @@ namespace WindowsEnhancementSuite.Services
                 this.commandBoxEntries.Add(entry);
                 this.commandListBox.Items.MoveCurrentToFirst();
             });
-        }
-
-        private void searchFilesRecursive(string path, string pattern, CancellationToken token)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    foreach (string directory in Directory.GetDirectories(path))
-                    {
-                        if (token.IsCancellationRequested) return;
-                        searchFilesRecursive(directory, pattern, token);
-                    }
-                }
-                catch (UnauthorizedAccessException) { }
-                catch (PathTooLongException) { }  
-
-                try
-                {
-                    foreach (string file in Directory.GetFiles(path, pattern))
-                    {
-                        if (token.IsCancellationRequested) return;
-                        addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.File));
-                    }
-                }
-                catch (UnauthorizedAccessException) { }
-                catch (PathTooLongException) { }                
-            }, token);
         }
         #endregion
     }
