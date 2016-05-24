@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,7 +12,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
-using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using System.Windows.Markup;
 using WindowsEnhancementSuite.Enums;
@@ -19,8 +19,6 @@ using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
 using WindowsEnhancementSuite.ValueObjects;
-using TextBox = System.Windows.Controls.TextBox;
-using WinCursor = System.Windows.Forms.Cursor;
 
 namespace WindowsEnhancementSuite.Services
 {
@@ -33,17 +31,13 @@ namespace WindowsEnhancementSuite.Services
 
         // Service Variables
         private readonly ObservableCollection<CommandBarEntry> commandBoxEntries;
-        private readonly List<CommandBarEntry> histories;
+        private readonly ConcurrentBag<CommandBarEntry> histories;
         private CancellationTokenSource cancellationTokenSource;
         private string searchText;
         private string searchUserParameter;
 
         // Additional Service Collections
         private readonly CommandBarOptions commandBarOptions;
-
-        public CommandBarService() : this(new CommandBarOptions())
-        {
-        }
 
         public CommandBarService(CommandBarOptions options)
         {
@@ -57,9 +51,18 @@ namespace WindowsEnhancementSuite.Services
             commandBarWindow.ShowActivated = true;
             commandBarWindow.Activated += (sender, args) => commandTextBox.SelectAll();
             
-            commandBarOptions = options;
-            histories = new List<CommandBarEntry>();
+            commandBarOptions = options;            
             cancellationTokenSource = new CancellationTokenSource();
+
+            // Load CommandHistory
+            histories = new ConcurrentBag<CommandBarEntry>();
+            if (commandBarOptions.CommandHistory != null)
+            {
+                foreach (string s in commandBarOptions.CommandHistory)
+                {
+                    histories.Add(new CommandBarEntry(s, CommandEntryKind.History));
+                }
+            }
 
             // Get all WPF-Controls
             commandTextBox = commandBarWindow.FindName("commandTextBox") as TextBox;
@@ -85,10 +88,16 @@ namespace WindowsEnhancementSuite.Services
 
         public bool ShowCommandBar()
         {
-            ElementHost.EnableModelessKeyboardInterop(commandBarWindow);
+            setCommandBarPosition();
+            ElementHost.EnableModelessKeyboardInterop(commandBarWindow);            
             commandBarWindow.Show();
 
             return true;
+        }
+
+        public IEnumerable<string> GetCommandHistory()
+        {
+            return histories.Select(e => e.Command);
         }
 
         private void commandTextBoxOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
@@ -163,6 +172,15 @@ namespace WindowsEnhancementSuite.Services
             this.search();
         }
 
+        private void setCommandBarPosition()
+        {
+            var currentScreen = FormPositionHelper.GetActiveScreenBounds();
+            commandBarWindow.Left = currentScreen.Left;
+            commandBarWindow.Top = currentScreen.Top;
+            commandBarWindow.Width = currentScreen.Width;
+            commandBarWindow.Height = currentScreen.Height;
+        }
+
         private void executeCommand(CommandBarEntry entry, bool asAdmin)
         {
             Task.Run(() =>
@@ -218,7 +236,7 @@ namespace WindowsEnhancementSuite.Services
                 {
                     if (token.IsCancellationRequested) return;
 
-                    if (entry.Command.ToLower().Contains(searchText)) addCommandBarEntry(entry);
+                    if (entry.Command.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(entry);
                 }
             }, token);
         }
@@ -227,12 +245,12 @@ namespace WindowsEnhancementSuite.Services
         {            
             Task.Run(() =>
             {
-                if (commandBarOptions.ExplorerService == null) return;
-                foreach (var entry in commandBarOptions.ExplorerService.ExplorerHistories)
+                if (commandBarOptions.ExplorerHistory == null) return;
+                foreach (var entry in commandBarOptions.ExplorerHistory)
                 {
                     if (token.IsCancellationRequested) return;
 
-                    if (entry.Command.ToLower().Contains(searchText)) addCommandBarEntry(entry);
+                    if (entry.Command.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(entry);
                 }
             }, token);
         }

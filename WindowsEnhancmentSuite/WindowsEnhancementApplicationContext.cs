@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Configuration;
-using System.IO;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Forms;
 using WindowsEnhancementSuite.Forms;
@@ -25,10 +24,13 @@ namespace WindowsEnhancementSuite
 
         public WindowsEnhancementApplicationContext()
         {
+            // Initialize and upgrade the Settings            
+            this.upgradeSettings();
+            if (Settings.Default.CommandBarHistories == null) Settings.Default.CommandBarHistories = new StringCollection();
+
             // Initialize Hotkeys
             this.keyboadHook = new KeyboardInterceptor();
             this.keyboadHook.KeyDown += keyboadHookOnKeyDown;
-
             this.keyboadHook.StartCapturing();
 
             // Initialize Services
@@ -38,11 +40,11 @@ namespace WindowsEnhancementSuite
             this.explorerBrowserService = new ExplorerBrowserService();
 
             // Initialize CommandBarService
-            RankingHelper.Initialize();
+            RankingHelper.Initialize();            
             var commandBarOptions = new CommandBarOptions
             {
-                ExplorerService = explorerBrowserService,
-                SystemSearchPaths = DriveInfo.GetDrives().Where(e => e.DriveType == DriveType.Fixed).Select(e => e.Name).ToArray()
+                ExplorerHistory = explorerBrowserService.ExplorerHistories,
+                CommandHistory = Settings.Default.CommandBarHistories.Cast<string>()
             };
             this.commandBarService = new CommandBarService(commandBarOptions);
 
@@ -120,11 +122,26 @@ namespace WindowsEnhancementSuite
             };
         }
 
+        private void upgradeSettings()
+        {
+            if (Settings.Default.UpgradeRequired)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.UpgradeRequired = false;
+                Settings.Default.Save();
+            }
+        }
+
         private void applicationOnApplicationExit(object sender, EventArgs eventArgs)
         {
             // Deactivate KeyHooks
             this.notifyIcon.Visible = false;
             this.keyboadHook.StopCapturing();
+
+            // Convert and save settings
+            Settings.Default.CommandBarHistories.Clear();
+            Settings.Default.CommandBarHistories.AddRange(this.commandBarService.GetCommandHistory().ToArray());
+
             RankingHelper.Save();
             Settings.Default.Save();
         }

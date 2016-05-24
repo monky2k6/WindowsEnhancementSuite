@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="CommandBar" Width="800" Height="600"
         AllowsTransparency="True" WindowStyle="None"
-        ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        WindowState="Maximized" ShowInTaskbar="False"
+        ResizeMode="NoResize" WindowStartupLocation="Manual"
+        WindowState="Normal" ShowInTaskbar="False"
         FocusManager.FocusedElement="{Binding ElementName=commandTextBox}">
     <Window.Background>
         <SolidColorBrush Opacity="0.6" Color="Black"/>

@@ -1,10 +1,11 @@
-﻿using WindowsEnhancementSuite.Services;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace WindowsEnhancementSuite.ValueObjects
 {
     public class CommandBarOptions
     {
-        public ExplorerBrowserService ExplorerService { get; set; }
-        public string[] SystemSearchPaths { get; set; }
+        public ReadOnlyCollection<CommandBarEntry> ExplorerHistory { get; set; }
+        public IEnumerable<string> CommandHistory { get; set; }
     }
 }

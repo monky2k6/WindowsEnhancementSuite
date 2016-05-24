@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using WindowsEnhancementSuite.Enums;
+﻿using WindowsEnhancementSuite.Enums;
 using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Helper;
 
@@ -25,7 +23,7 @@ namespace WindowsEnhancementSuite.ValueObjects
             this.Command = command;            
             this.Kind = kind;
             this.Hash = command.GetMd5Hash();
-            this.Name = !String.IsNullOrWhiteSpace(name) ? name : command;
+            this.Name = StringHelper.GetFirstNonEmpty(name, command);
         }
 
         public override string ToString()
