@@ -30,14 +30,12 @@ namespace WindowsEnhancementSuite.Services
         private readonly ListBox commandListBox;
 
         // Service Variables
+        private readonly CommandBarOptions commandBarOptions;
         private readonly ObservableCollection<CommandBarEntry> commandBoxEntries;
         private readonly ConcurrentBag<CommandBarEntry> histories;
         private CancellationTokenSource cancellationTokenSource;
         private string searchText;
         private string searchUserParameter;
-
-        // Additional Service Collections
-        private readonly CommandBarOptions commandBarOptions;
 
         public CommandBarService(CommandBarOptions options)
         {
@@ -54,11 +52,11 @@ namespace WindowsEnhancementSuite.Services
             commandBarOptions = options;            
             cancellationTokenSource = new CancellationTokenSource();
 
-            // Load CommandHistory
+            // Load CommandHistoryList
             histories = new ConcurrentBag<CommandBarEntry>();
-            if (commandBarOptions.CommandHistory != null)
+            if (commandBarOptions.CommandHistoryList != null)
             {
-                foreach (string s in commandBarOptions.CommandHistory)
+                foreach (string s in commandBarOptions.CommandHistoryList)
                 {
                     histories.Add(new CommandBarEntry(s, CommandEntryKind.History));
                 }
@@ -122,7 +120,7 @@ namespace WindowsEnhancementSuite.Services
                 keyEventArgs.Handled = true;
                 var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry);
                 if (commandEntry == null) return;
-                if (commandEntry.Kind != CommandEntryKind.Directory && commandEntry.Kind != CommandEntryKind.File) return;
+                if (commandEntry.Kind == CommandEntryKind.Command || commandEntry.Kind == CommandEntryKind.History) return;
                 commandTextBox.Text = commandEntry.Command;
                 commandTextBox.CaretIndex = commandEntry.Name.Length;
             }
@@ -245,12 +243,12 @@ namespace WindowsEnhancementSuite.Services
         {            
             Task.Run(() =>
             {
-                if (commandBarOptions.ExplorerHistory == null) return;
-                foreach (var entry in commandBarOptions.ExplorerHistory)
+                if (commandBarOptions.ExplorerHistoryFunc == null) return;
+                foreach (string path in commandBarOptions.ExplorerHistoryFunc())
                 {
                     if (token.IsCancellationRequested) return;
 
-                    if (entry.Command.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(entry);
+                    if (path.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(new CommandBarEntry(path, CommandEntryKind.Explorer));
                 }
             }, token);
         }

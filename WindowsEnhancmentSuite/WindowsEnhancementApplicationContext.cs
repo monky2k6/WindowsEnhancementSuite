@@ -43,8 +43,8 @@ namespace WindowsEnhancementSuite
             RankingHelper.Initialize();            
             var commandBarOptions = new CommandBarOptions
             {
-                ExplorerHistory = explorerBrowserService.ExplorerHistories,
-                CommandHistory = Settings.Default.CommandBarHistories.Cast<string>()
+                ExplorerHistoryFunc = explorerBrowserService.GetExplorerHistories,
+                CommandHistoryList = Settings.Default.CommandBarHistories.Cast<string>()
             };
             this.commandBarService = new CommandBarService(commandBarOptions);
 

@@ -6,9 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using WindowsEnhancementSuite.Enums;
 using WindowsEnhancementSuite.Helper;
-using WindowsEnhancementSuite.ValueObjects;
 using SHDocVw;
 
 namespace WindowsEnhancementSuite.Services
@@ -20,12 +18,9 @@ namespace WindowsEnhancementSuite.Services
         private readonly ShellWindows shellWindows;
         private Queue<ExplorerHistory> historyQueue;
 
-        public ReadOnlyCollection<CommandBarEntry> ExplorerHistories
+        public ReadOnlyCollection<string> GetExplorerHistories()
         {
-            get
-            {
-                return historyQueue.Select(e => new CommandBarEntry(e.Path, CommandEntryKind.Explorer)).ToList().AsReadOnly();
-            }
+            return historyQueue.Select(e => e.Path).ToList().AsReadOnly();
         }
 
         public ExplorerBrowserService()

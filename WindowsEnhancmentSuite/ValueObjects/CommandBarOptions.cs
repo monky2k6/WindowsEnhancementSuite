@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WindowsEnhancementSuite.ValueObjects
 {
     public class CommandBarOptions
     {
-        public ReadOnlyCollection<CommandBarEntry> ExplorerHistory { get; set; }
-        public IEnumerable<string> CommandHistory { get; set; }
+        public Func<IEnumerable<string>> ExplorerHistoryFunc { get; set; }
+        public IEnumerable<string> CommandHistoryList { get; set; }
     }
 }
