@@ -19,6 +19,7 @@ using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Properties;
 using WindowsEnhancementSuite.ValueObjects;
+using Microsoft.Win32;
 
 namespace WindowsEnhancementSuite.Services
 {
@@ -219,12 +220,13 @@ namespace WindowsEnhancementSuite.Services
                 searchText = searchText.Substring(0, space);
             }
 
-            // Start individual searches, each starts a new Task
-            searchCommandHistory(cancelToken);
+            // Start individual searches, each starts a new Task            
             searchLastVisited(cancelToken);
+            searchCommandHistory(cancelToken);
+            searchApplications(cancelToken);
             searchSystemPath(cancelToken);
             searchFileSystem(cancelToken);
-        }
+        }        
 
         private void searchCommandHistory(CancellationToken token)
         {
@@ -280,6 +282,32 @@ namespace WindowsEnhancementSuite.Services
                             addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.Command, Path.GetFileNameWithoutExtension(file)));
                         }
                     }, token);
+                }
+            }, token);
+        }
+
+        private void searchApplications(CancellationToken token)
+        {
+            Task.Run(() =>
+            {
+                using (var rootKey = Registry.ClassesRoot.OpenSubKey(@"Applications"))
+                {
+                    if (rootKey == null) return;
+                    if (token.IsCancellationRequested) return;
+
+                    var options = new ParallelOptions
+                    {
+                        CancellationToken = token,
+                        MaxDegreeOfParallelism = Environment.ProcessorCount
+                    };
+
+                    Parallel.ForEach(rootKey.GetSubKeyNames(), options, keyName =>
+                    {
+                        if (token.IsCancellationRequested) return;
+                        
+                        if (!keyName.StartsWith(searchText, StringComparison.CurrentCultureIgnoreCase)) return;
+                        var key = Registry.ClassesRoot.OpenSubKey(keyName);                        
+                    });   
                 }
             }, token);
         }
