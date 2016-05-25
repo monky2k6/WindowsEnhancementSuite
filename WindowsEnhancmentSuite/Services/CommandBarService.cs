@@ -25,6 +25,10 @@ namespace WindowsEnhancementSuite.Services
 {
     public class CommandBarService
     {
+        // Required constants
+        private const string COMMANDS_REGEX = @"[^a-zA-Z0-9 !+_-]";
+        private const string FILES_REGEX = @"[^a-zA-Z0-9 \\!+:_-]";
+
         // WPF Controls
         private readonly Window commandBarWindow;
         private readonly TextBox commandTextBox;
@@ -40,17 +44,19 @@ namespace WindowsEnhancementSuite.Services
 
         public CommandBarService(CommandBarOptions options)
         {
+            // Load WPF Window
             using (var stream = Resources.CommandBar.ToStream<MemoryStream>())
             {
                 commandBarWindow = XamlReader.Load(stream) as Window;
             }
 
             if (commandBarWindow == null) return;
+            ElementHost.EnableModelessKeyboardInterop(commandBarWindow);
             commandBarWindow.Topmost = true;
-            commandBarWindow.ShowActivated = true;
             commandBarWindow.Activated += (sender, args) => commandTextBox.SelectAll();
-            
-            commandBarOptions = options;            
+
+            // Init Service
+            commandBarOptions = options;
             cancellationTokenSource = new CancellationTokenSource();
 
             // Load CommandHistoryList
@@ -88,8 +94,8 @@ namespace WindowsEnhancementSuite.Services
         public bool ShowCommandBar()
         {
             setCommandBarPosition();
-            ElementHost.EnableModelessKeyboardInterop(commandBarWindow);            
             commandBarWindow.Show();
+            commandBarWindow.Activate();
 
             return true;
         }
@@ -121,15 +127,15 @@ namespace WindowsEnhancementSuite.Services
                 keyEventArgs.Handled = true;
                 var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry);
                 if (commandEntry == null) return;
-                if (commandEntry.Kind == CommandEntryKind.Command || commandEntry.Kind == CommandEntryKind.History) return;
-                commandTextBox.Text = commandEntry.Command;
+
+                commandTextBox.Text = commandEntry.ToString();
                 commandTextBox.CaretIndex = commandEntry.Name.Length;
             }
 
             if (keyEventArgs.Key == Key.Escape)
             {
                 this.cancellationTokenSource.Cancel();
-                commandBarWindow.Hide();                
+                commandBarWindow.Hide();
                 return;
             }
 
@@ -145,7 +151,7 @@ namespace WindowsEnhancementSuite.Services
                 }
                 finally
                 {
-                    commandBarWindow.Hide();                    
+                    commandBarWindow.Hide();
                 }
             }
         }
@@ -188,14 +194,20 @@ namespace WindowsEnhancementSuite.Services
                 if (entry.Kind == CommandEntryKind.Directory || entry.Kind == CommandEntryKind.Explorer) searchUserParameter = "";
                 RankingHelper.IncreaseRank(entry);
 
-                if (asAdmin)
+                try
                 {
-                    // Start as Admin
-                    UacAssistService.RunAsAdmin(entry.Command, searchUserParameter.Trim());
-                    return;
-                }
+                    if (asAdmin)
+                    {
+                        // Start as Admin
+                        UacAssistService.RunAsAdmin(entry.Command, searchUserParameter.Trim());
+                        return;
+                    }
 
-                Process.Start(new ProcessStartInfo(entry.Command, searchUserParameter.Trim()));
+                    Process.Start(new ProcessStartInfo(entry.Command, searchUserParameter.Trim()));
+                }
+                catch (Win32Exception)
+                {
+                }
             });
         }
 
@@ -259,7 +271,7 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                string systemSearch = Regex.Replace(searchText, "[^a-zA-Z0-9 !+_-]", "", RegexOptions.Compiled);
+                string systemSearch = Regex.Replace(searchText, COMMANDS_REGEX, "", RegexOptions.Compiled);
                 if (String.IsNullOrWhiteSpace(systemSearch)) return;
 
                 string searchTerm = String.Format("{0}*.exe", systemSearch);
@@ -290,25 +302,38 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                using (var rootKey = Registry.ClassesRoot.OpenSubKey(@"Applications"))
+                var rootKey = Registry.ClassesRoot.OpenSubKey(@"Applications");
+                if (rootKey == null) return;
+                if (token.IsCancellationRequested) return;
+
+                var options = new ParallelOptions
                 {
-                    if (rootKey == null) return;
+                    CancellationToken = token,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
+
+                string appSearchText = searchText.ToLower();
+                Parallel.ForEach(rootKey.GetSubKeyNames(), options, keyName =>
+                {
+                    if (!keyName.EndsWith(".exe", StringComparison.CurrentCultureIgnoreCase)) return;
+                    if (!keyName.ToLower().Contains(appSearchText)) return;
+
                     if (token.IsCancellationRequested) return;
 
-                    var options = new ParallelOptions
+                    string applicationName = keyName.Substring(0, keyName.LastIndexOf("."));
+                    var shellKey = rootKey.OpenSubKey(keyName + @"\shell\open\command");
+                    if (shellKey != null)
                     {
-                        CancellationToken = token,
-                        MaxDegreeOfParallelism = Environment.ProcessorCount
-                    };
+                        string shellKeyValue = shellKey.GetValue(null).ToString().TrimStart('"');
+                        shellKeyValue = shellKeyValue.Substring(0, Math.Max(shellKeyValue.IndexOf('"'), 0));
+                        shellKeyValue = StringHelper.GetFirstNonEmpty(shellKeyValue, applicationName);
 
-                    Parallel.ForEach(rootKey.GetSubKeyNames(), options, keyName =>
-                    {
-                        if (token.IsCancellationRequested) return;
-                        
-                        if (!keyName.StartsWith(searchText, StringComparison.CurrentCultureIgnoreCase)) return;
-                        var key = Registry.ClassesRoot.OpenSubKey(keyName);                        
-                    });   
-                }
+                        addCommandBarEntry(new CommandBarEntry(shellKeyValue, CommandEntryKind.Application, applicationName));
+                        return;
+                    }
+
+                    addCommandBarEntry(new CommandBarEntry(applicationName, CommandEntryKind.Application));
+                });
             }, token);
         }
 
@@ -316,7 +341,7 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                string searchPath = Regex.Replace(searchText + searchUserParameter, "@[^a-zA-Z0-9 \\!+:_-]", "", RegexOptions.Compiled);
+                string searchPath = Regex.Replace(searchText + searchUserParameter, FILES_REGEX, "", RegexOptions.Compiled);
                 if (String.IsNullOrWhiteSpace(searchPath)) return;
 
                 if (!Path.IsPathRooted(searchPath)) return;
@@ -374,6 +399,13 @@ namespace WindowsEnhancementSuite.Services
         {
             commandListBox.Dispatcher.BeginInvoke((Action)delegate
             {
+                var oldEntry = this.commandBoxEntries.FirstOrDefault(e => e.Name == entry.Name);
+                if (oldEntry != null)
+                {
+                    if (oldEntry.Kind > entry.Kind) return;
+                    this.commandBoxEntries.Remove(oldEntry);
+                }
+
                 this.commandBoxEntries.Add(entry);
                 this.commandListBox.Items.MoveCurrentToFirst();
             });

@@ -17,7 +17,6 @@ namespace WindowsEnhancementSuite
             if (Utils.IsProcessRunning()) return;
 
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new WindowsEnhancementApplicationContext());
         }
     }
