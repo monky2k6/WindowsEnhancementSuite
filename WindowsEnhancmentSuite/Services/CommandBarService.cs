@@ -363,14 +363,14 @@ namespace WindowsEnhancementSuite.Services
                 if (searchPath.Contains("\\"))
                 {
                     int charIndex = searchPath.LastIndexOf("\\") + 1;
-                    searchWord = searchPath.Substring(charIndex);
+                    searchWord = searchPath.Substring(charIndex).ToLower();
                     searchPath = searchPath.Substring(0, charIndex);
                 }
 
                 Parallel.ForEach(getPathContent(searchPath, true), options, dir =>
                 {
                     string dirName = new DirectoryInfo(dir).Name;
-                    if (dirName.ToLower().StartsWith(searchWord.ToLower()))
+                    if (dirName.ToLower().Contains(searchWord))
                     {
                         addCommandBarEntry(new CommandBarEntry(dir, CommandEntryKind.Directory));
                     }
@@ -379,7 +379,7 @@ namespace WindowsEnhancementSuite.Services
                 Parallel.ForEach(getPathContent(searchPath, false), options, file =>
                 {
                     string fileName = new FileInfo(file).Name;
-                    if (fileName.ToLower().StartsWith(searchWord.ToLower()))
+                    if (fileName.ToLower().Contains(searchWord))
                     {
                         addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.File));
                     }
