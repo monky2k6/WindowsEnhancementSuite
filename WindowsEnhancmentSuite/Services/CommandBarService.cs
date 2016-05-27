@@ -244,26 +244,34 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                foreach (var entry in histories)
+                var parallelOptions = new ParallelOptions
                 {
-                    if (token.IsCancellationRequested) return;
+                    CancellationToken = token,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
 
+                Parallel.ForEach(histories, parallelOptions, entry =>
+                {
                     if (entry.Command.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(entry);
-                }
+                });
             }, token);
         }
 
         private void searchLastVisited(CancellationToken token)
-        {            
+        {
             Task.Run(() =>
             {
                 if (commandBarOptions.ExplorerHistoryFunc == null) return;
-                foreach (string path in commandBarOptions.ExplorerHistoryFunc())
+                var parallelOptions = new ParallelOptions
                 {
-                    if (token.IsCancellationRequested) return;
+                    CancellationToken = token,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
 
+                Parallel.ForEach(commandBarOptions.ExplorerHistoryFunc(), parallelOptions, path =>
+                {
                     if (path.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(new CommandBarEntry(path, CommandEntryKind.Explorer));
-                }
+                });
             }, token);
         }
 
@@ -279,22 +287,21 @@ namespace WindowsEnhancementSuite.Services
                 string enviromentPath = Environment.GetEnvironmentVariable("PATH");
                 if (String.IsNullOrWhiteSpace(enviromentPath)) return;
 
-                foreach (string path in enviromentPath.Split(';'))
+                var parallelOptions = new ParallelOptions
                 {
-                    if (token.IsCancellationRequested) return;
+                    CancellationToken = token,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
 
-                    if (!Directory.Exists(path)) continue;
-                    string directory = path;
-                    Task.Run(() =>
+                Parallel.ForEach(enviromentPath.Split(';'), parallelOptions, path =>
+                {
+                    if (!Directory.Exists(path)) return;
+                    var files = Directory.GetFiles(path, searchTerm, SearchOption.TopDirectoryOnly);
+                    Parallel.ForEach(files, parallelOptions, file =>
                     {
-                        var files = Directory.GetFiles(directory, searchTerm, SearchOption.TopDirectoryOnly);
-                        foreach (string file in files)
-                        {
-                            if (token.IsCancellationRequested) return;
-                            addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.Command, Path.GetFileNameWithoutExtension(file)));
-                        }
-                    }, token);
-                }
+                        addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.Command, Path.GetFileNameWithoutExtension(file)));
+                    });
+                });
             }, token);
         }
 
@@ -346,6 +353,12 @@ namespace WindowsEnhancementSuite.Services
 
                 if (!Path.IsPathRooted(searchPath)) return;
 
+                var options = new ParallelOptions
+                {
+                    CancellationToken = token,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
+
                 string searchWord = String.Empty;
                 if (searchPath.Contains("\\"))
                 {
@@ -353,46 +366,39 @@ namespace WindowsEnhancementSuite.Services
                     searchWord = searchPath.Substring(charIndex);
                     searchPath = searchPath.Substring(0, charIndex);
                 }
-                
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        foreach (string dir in Directory.EnumerateDirectories(searchPath))
-                        {
-                            if (token.IsCancellationRequested) return;
-                            string dirName = new DirectoryInfo(dir).Name;
-                            if (dirName.ToLower().StartsWith(searchWord.ToLower()))
-                            {
-                                addCommandBarEntry(new CommandBarEntry(dir, CommandEntryKind.Directory));
-                            }
-                        }
-                    }
-                    catch (UnauthorizedAccessException) { }
-                    catch (PathTooLongException) { }
-                    catch (DirectoryNotFoundException) { }
-                }, token);
 
-                Task.Run(() =>
+                Parallel.ForEach(getPathContent(searchPath, true), options, dir =>
                 {
-                    try
+                    string dirName = new DirectoryInfo(dir).Name;
+                    if (dirName.ToLower().StartsWith(searchWord.ToLower()))
                     {
-                        foreach (string file in Directory.EnumerateFiles(searchPath))
-                        {
-                            if (token.IsCancellationRequested) return;
-                            string dirName = new FileInfo(file).Name;
-                            if (dirName.ToLower().StartsWith(searchWord.ToLower()))
-                            {
-                                addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.File));
-                            }
-                        }
+                        addCommandBarEntry(new CommandBarEntry(dir, CommandEntryKind.Directory));
                     }
-                    catch (UnauthorizedAccessException) { }
-                    catch (PathTooLongException) { }
-                    catch (DirectoryNotFoundException) { }
-                }, token);
+                });
 
+                Parallel.ForEach(getPathContent(searchPath, false), options, file =>
+                {
+                    string fileName = new FileInfo(file).Name;
+                    if (fileName.ToLower().StartsWith(searchWord.ToLower()))
+                    {
+                        addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.File));
+                    }
+                });
             }, token);
+        }
+
+        private IEnumerable<string> getPathContent(string searchPath, bool directories)
+        {
+            try
+            {
+                if (directories) return Directory.EnumerateDirectories(searchPath);
+                return Directory.EnumerateFiles(searchPath);
+            }
+            catch (UnauthorizedAccessException) { }
+            catch (PathTooLongException) { }
+            catch (DirectoryNotFoundException) { }
+
+            return new List<string>();
         }
 
         private void addCommandBarEntry(CommandBarEntry entry)
