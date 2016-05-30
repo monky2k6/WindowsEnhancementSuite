@@ -348,27 +348,8 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                // Resolv Environment Variables
-                if (searchText.StartsWith("%") && searchText.EndsWith("%"))
-                {
-                    string environmentPath = Environment.ExpandEnvironmentVariables(searchText);
-                    if (environmentPath.Contains(";"))
-                    {
-                        environmentPath = environmentPath.Substring(0, environmentPath.IndexOf(";"));
-                    }
-                    if (Directory.Exists(environmentPath))
-                    {
-                        this.addCommandBarEntry(new CommandBarEntry(environmentPath, CommandEntryKind.Directory));
-                        return;
-                    }
-                    if (File.Exists(environmentPath))
-                    {
-                        this.addCommandBarEntry(new CommandBarEntry(environmentPath, CommandEntryKind.File));
-                        return;
-                    }
-                }
-
-                string searchPath = Regex.Replace(searchText + searchUserParameter, FILES_REGEX, "", RegexOptions.Compiled);
+                string searchPath = Environment.ExpandEnvironmentVariables(searchText + searchUserParameter);
+                searchPath = Regex.Replace(searchPath, FILES_REGEX, "", RegexOptions.Compiled);
                 if (String.IsNullOrWhiteSpace(searchPath)) return;
 
                 if (!Path.IsPathRooted(searchPath)) return;
