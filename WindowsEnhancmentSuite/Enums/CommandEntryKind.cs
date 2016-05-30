@@ -1,12 +1,12 @@
 ﻿namespace WindowsEnhancementSuite.Enums
 {
     public enum CommandEntryKind
-    {
-        File = 0,
-        Directory = 1,
-        Command = 2,
-        Application = 3,
-        History = 4,
-        Explorer = 5        
+    {        
+        Command = 0,
+        Application = 1,
+        Explorer = 2,
+        Directory = 3,
+        File = 4,
+        History = 5
     }
 }
