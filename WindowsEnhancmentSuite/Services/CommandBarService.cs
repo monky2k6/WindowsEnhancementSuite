@@ -292,7 +292,7 @@ namespace WindowsEnhancementSuite.Services
                     var dataTable = new DataTable();
                     var evalValue = dataTable.Compute(searchText + searchUserParameter, "");
                     if (String.IsNullOrWhiteSpace(evalValue.ToString())) return;
-                    this.addCommandBarEntry(new CommandBarEntry("", CommandEntryKind.Evaluation, Convert.ToDouble(evalValue).ToString("N2")));
+                    this.addCommandBarEntry(new CommandBarEntry("", CommandEntryKind.Evaluation, evalValue.ToString()));
                 }
                 catch (SyntaxErrorException) { }
                 catch (EvaluateException) { }
