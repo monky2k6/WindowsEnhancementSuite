@@ -40,14 +40,14 @@ namespace WindowsEnhancementSuite
             this.explorerBrowserService = new ExplorerBrowserService();
 
             // Initialize CommandBarService
-            RankingHelper.Initialize();            
+            RankingHelper.Initialize();
             var commandBarOptions = new CommandBarOptions
             {
                 ExplorerHistoryFunc = explorerBrowserService.GetExplorerHistories,
                 CommandHistoryList = Settings.Default.CommandBarHistories.Cast<string>()
             };
             this.commandBarService = new CommandBarService(commandBarOptions);
-
+            
             // Initialize TrayIcon etc.
             this.initializeComponents();
             

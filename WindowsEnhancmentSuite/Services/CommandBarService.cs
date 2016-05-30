@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -232,13 +233,15 @@ namespace WindowsEnhancementSuite.Services
                 searchText = searchText.Substring(0, space);
             }
 
-            // Start individual searches, each starts a new Task            
-            searchLastVisited(cancelToken);
+            // Start individual searches, each starts a new Task
             searchCommandHistory(cancelToken);
+            searchPlugins(cancelToken);
+            searchEvaluate(cancelToken);            
+            searchFileSystem(cancelToken);
+            searchLastVisited(cancelToken);
             searchApplications(cancelToken);
             searchSystemPath(cancelToken);
-            searchFileSystem(cancelToken);
-        }        
+        }
 
         private void searchCommandHistory(CancellationToken token)
         {
@@ -272,6 +275,27 @@ namespace WindowsEnhancementSuite.Services
                 {
                     if (path.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(new CommandBarEntry(path, CommandEntryKind.Explorer));
                 });
+            }, token);
+        }
+
+        private void searchPlugins(CancellationToken token)
+        {
+            // Todo: Implement Plugin-System
+        }
+
+        private void searchEvaluate(CancellationToken token)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var dataTable = new DataTable();
+                    var evalValue = dataTable.Compute(searchText + searchUserParameter, "");
+                    if (String.IsNullOrWhiteSpace(evalValue.ToString())) return;
+                    this.addCommandBarEntry(new CommandBarEntry("", CommandEntryKind.Evaluation, Convert.ToDouble(evalValue).ToString("N2")));
+                }
+                catch (SyntaxErrorException) { }
+                catch (EvaluateException) { }
             }, token);
         }
 
@@ -384,7 +408,7 @@ namespace WindowsEnhancementSuite.Services
                     {
                         addCommandBarEntry(new CommandBarEntry(file, CommandEntryKind.File));
                     }
-                });
+                });               
             }, token);
         }
 
