@@ -18,6 +18,7 @@ using System.Windows.Markup;
 using WindowsEnhancementSuite.Enums;
 using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Helper;
+using WindowsEnhancementSuite.Helper.Windows;
 using WindowsEnhancementSuite.Properties;
 using WindowsEnhancementSuite.ValueObjects;
 using Microsoft.Win32;
@@ -197,6 +198,12 @@ namespace WindowsEnhancementSuite.Services
 
                 try
                 {
+                    if (entry.Kind == CommandEntryKind.Window)
+                    {
+                        var handle = (IntPtr)Convert.ToInt32(entry.Command);
+                        WindowsMethods.ActivateWindow(handle);
+                    }
+
                     if (asAdmin)
                     {
                         // Start as Admin
@@ -236,13 +243,13 @@ namespace WindowsEnhancementSuite.Services
             // Start individual searches, each starts a new Task
             searchCommandHistory(cancelToken);
             searchPlugins(cancelToken);
-            searchEvaluate(cancelToken);            
+            searchEvaluate(cancelToken);
+            searchOpenWindows(cancelToken);
             searchFileSystem(cancelToken);
             searchLastVisited(cancelToken);
             searchApplications(cancelToken);
             searchSystemPath(cancelToken);
         }
-
         private void searchCommandHistory(CancellationToken token)
         {
             Task.Run(() =>
@@ -253,9 +260,10 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
+                string searchTerm = searchText.ToLower();
                 Parallel.ForEach(histories, parallelOptions, entry =>
                 {
-                    if (entry.Command.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(entry);
+                    if (entry.Command.ToLower().Contains(searchTerm)) addCommandBarEntry(entry);
                 });
             }, token);
         }
@@ -271,9 +279,10 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
+                string searchTerm = searchText.ToLower();
                 Parallel.ForEach(commandBarOptions.ExplorerHistoryFunc(), parallelOptions, path =>
                 {
-                    if (path.ToLower().Contains(searchText.ToLower())) addCommandBarEntry(new CommandBarEntry(path, CommandEntryKind.Explorer));
+                    if (path.ToLower().Contains(searchTerm)) addCommandBarEntry(new CommandBarEntry(path, CommandEntryKind.Explorer));
                 });
             }, token);
         }
@@ -296,6 +305,25 @@ namespace WindowsEnhancementSuite.Services
                 }
                 catch (SyntaxErrorException) { }
                 catch (EvaluateException) { }
+            }, token);
+        }
+
+        private void searchOpenWindows(CancellationToken token)
+        {
+            Task.Run(() =>
+            {
+                var paralellOptions = new ParallelOptions
+                {
+                    CancellationToken = token,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                };
+
+                string searchTerm = searchText.ToLower();
+                Parallel.ForEach(WindowsMethods.GetOpenWindows(), paralellOptions, window =>
+                {
+                    string pointer = window.Value.ToInt32().ToString();
+                    if (window.Key.ToLower().Contains(searchTerm)) addCommandBarEntry(new CommandBarEntry(pointer, CommandEntryKind.Window, window.Key));
+                });
             }, token);
         }
 

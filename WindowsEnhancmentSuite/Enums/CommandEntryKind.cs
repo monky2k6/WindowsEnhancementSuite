@@ -7,8 +7,9 @@
         Explorer = 2,
         Directory = 3,
         File = 4,
-        Evaluation = 5,
-        Plugin = 6,
-        History = 7
+        Window = 5,
+        Evaluation = 6,
+        Plugin = 7,
+        History = 8
     }
 }
