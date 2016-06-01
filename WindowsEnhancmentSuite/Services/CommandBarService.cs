@@ -28,8 +28,8 @@ namespace WindowsEnhancementSuite.Services
     public class CommandBarService
     {
         // Required constants
-        private const string COMMANDS_REGEX = @"[^a-zA-Z0-9 !+_-]";
-        private const string FILES_REGEX = @"[^a-zA-Z0-9 \\!+:_-]";
+        private const string COMMANDS_REGEX = @"[^a-zA-Z0-9 ()!+_-]";
+        private const string FILES_REGEX = @"[^a-zA-Z0-9 \\()!+:_-]";
 
         // WPF Controls
         private readonly Window commandBarWindow;
@@ -250,6 +250,7 @@ namespace WindowsEnhancementSuite.Services
             searchApplications(cancelToken);
             searchSystemPath(cancelToken);
         }
+
         private void searchCommandHistory(CancellationToken token)
         {
             Task.Run(() =>
@@ -260,7 +261,7 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                string searchTerm = searchText.ToLower();
+                string searchTerm = String.Concat(searchText, searchUserParameter).ToLower();
                 Parallel.ForEach(histories, parallelOptions, entry =>
                 {
                     if (entry.Command.ToLower().Contains(searchTerm)) addCommandBarEntry(entry);
@@ -279,7 +280,7 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                string searchTerm = searchText.ToLower();
+                string searchTerm = String.Concat(searchText, searchUserParameter).ToLower();
                 Parallel.ForEach(commandBarOptions.ExplorerHistoryFunc(), parallelOptions, path =>
                 {
                     if (path.ToLower().Contains(searchTerm)) addCommandBarEntry(new CommandBarEntry(path, CommandEntryKind.Explorer));
@@ -299,7 +300,7 @@ namespace WindowsEnhancementSuite.Services
                 try
                 {
                     var dataTable = new DataTable();
-                    var evalValue = dataTable.Compute(searchText + searchUserParameter, "");
+                    var evalValue = dataTable.Compute(String.Concat(searchText, searchUserParameter), "");
                     if (String.IsNullOrWhiteSpace(evalValue.ToString())) return;
                     this.addCommandBarEntry(new CommandBarEntry("", CommandEntryKind.Evaluation, evalValue.ToString()));
                 }
@@ -318,7 +319,7 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                string searchTerm = searchText.ToLower();
+                string searchTerm = String.Concat(searchText, searchUserParameter).ToLower();
                 Parallel.ForEach(WindowsMethods.GetOpenWindows(), paralellOptions, window =>
                 {
                     string pointer = window.Value.ToInt32().ToString();
@@ -400,7 +401,7 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                string searchPath = Environment.ExpandEnvironmentVariables(searchText + searchUserParameter);
+                string searchPath = Environment.ExpandEnvironmentVariables(String.Concat(searchText, searchUserParameter));
                 searchPath = Regex.Replace(searchPath, FILES_REGEX, "", RegexOptions.Compiled);
                 if (String.IsNullOrWhiteSpace(searchPath)) return;
 
