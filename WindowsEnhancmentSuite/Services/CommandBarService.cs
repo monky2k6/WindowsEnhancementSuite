@@ -132,6 +132,7 @@ namespace WindowsEnhancementSuite.Services
 
                 commandTextBox.Text = commandEntry.ToString();
                 commandTextBox.CaretIndex = commandEntry.Name.Length;
+                return;
             }
 
             if (keyEventArgs.Key == Key.Escape)
@@ -300,7 +301,7 @@ namespace WindowsEnhancementSuite.Services
                 try
                 {
                     var dataTable = new DataTable();
-                    var evalValue = dataTable.Compute(String.Concat(searchText, searchUserParameter), "");
+                    var evalValue = dataTable.Compute(searchText + searchUserParameter, "");
                     if (String.IsNullOrWhiteSpace(evalValue.ToString())) return;
                     this.addCommandBarEntry(new CommandBarEntry("", CommandEntryKind.Evaluation, evalValue.ToString()));
                 }
@@ -401,7 +402,7 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                string searchPath = Environment.ExpandEnvironmentVariables(String.Concat(searchText, searchUserParameter));
+                string searchPath = Environment.ExpandEnvironmentVariables(searchText + searchUserParameter);
                 searchPath = Regex.Replace(searchPath, FILES_REGEX, "", RegexOptions.Compiled);
                 if (String.IsNullOrWhiteSpace(searchPath)) return;
 
@@ -421,12 +422,18 @@ namespace WindowsEnhancementSuite.Services
                     searchPath = searchPath.Substring(0, charIndex);
                 }
 
+                if (Directory.Exists(searchPath) && String.IsNullOrWhiteSpace(searchWord))
+                {
+                    var commandEntry = new CommandBarEntry(new DirectoryInfo(searchPath).FullName, CommandEntryKind.History);
+                    this.addCommandBarEntry(commandEntry);
+                }
+
                 Parallel.ForEach(getPathContent(searchPath, true), options, dir =>
                 {
                     string dirName = new DirectoryInfo(dir).Name;
                     if (dirName.ToLower().Contains(searchWord))
                     {
-                        addCommandBarEntry(new CommandBarEntry(dir, CommandEntryKind.Directory));
+                        addCommandBarEntry(new CommandBarEntry(dir + "\\", CommandEntryKind.Directory));
                     }
                 });
 
