@@ -5,9 +5,10 @@
         Command = 0,
         Application = 1,
         Explorer = 2,
-        Directory = 3,
-        File = 4,
+        File = 3,
+        Directory = 4,
         Window = 5,
+        TopDirectory = 6,
         Evaluation = 6,
         Plugin = 7,
         History = 8

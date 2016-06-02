@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Helper;
 using SHDocVw;
 
@@ -20,7 +21,7 @@ namespace WindowsEnhancementSuite.Services
 
         public ReadOnlyCollection<string> GetExplorerHistories()
         {
-            return historyQueue.Select(e => e.Path).ToList().AsReadOnly();
+            return historyQueue.Select(e => e.Path.ConditionalAttach(!e.Path.EndsWith("\\"), "\\")).ToList().AsReadOnly();
         }
 
         public ExplorerBrowserService()

@@ -38,7 +38,7 @@ namespace WindowsEnhancementSuite.Services
 
         // Service Variables
         private readonly CommandBarOptions commandBarOptions;
-        private readonly ObservableCollection<CommandBarEntry> commandBoxEntries;
+        private readonly ObservableCollection<CommandBarEntry> commandBarEntries;
         private readonly ConcurrentBag<CommandBarEntry> histories;
         private CancellationTokenSource cancellationTokenSource;
         private string searchText;
@@ -83,8 +83,8 @@ namespace WindowsEnhancementSuite.Services
             commandListBox = commandBarWindow.FindName("commandListBox") as ListBox;
             if (commandListBox != null)
             {
-                commandBoxEntries = new ObservableCollection<CommandBarEntry>();
-                commandListBox.ItemsSource = commandBoxEntries;
+                this.commandBarEntries = new ObservableCollection<CommandBarEntry>();
+                commandListBox.ItemsSource = this.commandBarEntries;
                 commandListBox.Items.SortDescriptions.Add(new SortDescription("Rank", ListSortDirection.Descending));
                 commandListBox.Items.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
 
@@ -142,7 +142,7 @@ namespace WindowsEnhancementSuite.Services
                 return;
             }
 
-            if (keyEventArgs.Key == Key.Return || keyEventArgs.Key == Key.Enter)
+            if (keyEventArgs.Key.In(Key.Return, Key.Enter))
             {
                 try
                 {
@@ -161,12 +161,12 @@ namespace WindowsEnhancementSuite.Services
 
         private void commandListBoxOnMouseDoubleClick(object sender, MouseButtonEventArgs mouseButtonEventArgs)
         {
+            this.cancellationTokenSource.Cancel();
+            var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry);
+            if (commandEntry == null) return;
+
             try
             {
-                this.cancellationTokenSource.Cancel();
-                var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry) ??
-                                   new CommandBarEntry(searchText + searchUserParameter, CommandEntryKind.History);
-
                 executeCommand(commandEntry, false);
             }
             finally
@@ -194,7 +194,7 @@ namespace WindowsEnhancementSuite.Services
             Task.Run(() =>
             {
                 if (entry.Kind == CommandEntryKind.History && histories.All(e => e.Command != entry.Command)) histories.Add(entry);
-                if (entry.Kind == CommandEntryKind.Directory || entry.Kind == CommandEntryKind.Explorer) searchUserParameter = "";
+                if (entry.Kind.In(CommandEntryKind.Directory, CommandEntryKind.TopDirectory, CommandEntryKind.Explorer)) searchUserParameter = "";
                 RankingHelper.IncreaseRank(entry);
 
                 try
@@ -229,7 +229,7 @@ namespace WindowsEnhancementSuite.Services
             var cancelToken = this.cancellationTokenSource.Token;
 
             // Clear results and parameters
-            commandBoxEntries.Clear();
+            this.commandBarEntries.Clear();
             searchText = commandTextBox.Text.Trim();
             searchUserParameter = String.Empty;
 
@@ -407,26 +407,25 @@ namespace WindowsEnhancementSuite.Services
                 if (String.IsNullOrWhiteSpace(searchPath)) return;
 
                 if (!Path.IsPathRooted(searchPath)) return;
+                if (!searchPath.Contains("\\")) return;
+
+                int charIndex = searchPath.LastIndexOf("\\") + 1;
+                string searchWord = searchPath.Substring(charIndex).ToLower();
+                searchPath = searchPath.Substring(0, charIndex);
+
+                try { searchPath = Path.GetFullPath(searchPath); } catch { return; }
+
+                if (String.IsNullOrWhiteSpace(searchWord))
+                {
+                    var commandEntry = new CommandBarEntry(new DirectoryInfo(searchPath).FullName, CommandEntryKind.TopDirectory);
+                    this.addCommandBarEntry(commandEntry);
+                }
 
                 var options = new ParallelOptions
                 {
                     CancellationToken = token,
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
-
-                string searchWord = String.Empty;
-                if (searchPath.Contains("\\"))
-                {
-                    int charIndex = searchPath.LastIndexOf("\\") + 1;
-                    searchWord = searchPath.Substring(charIndex).ToLower();
-                    searchPath = searchPath.Substring(0, charIndex);
-                }
-
-                if (Directory.Exists(searchPath) && String.IsNullOrWhiteSpace(searchWord))
-                {
-                    var commandEntry = new CommandBarEntry(new DirectoryInfo(searchPath).FullName, CommandEntryKind.History);
-                    this.addCommandBarEntry(commandEntry);
-                }
 
                 Parallel.ForEach(getPathContent(searchPath, true), options, dir =>
                 {
@@ -466,14 +465,14 @@ namespace WindowsEnhancementSuite.Services
         {
             commandListBox.Dispatcher.BeginInvoke((Action)delegate
             {
-                var oldEntry = this.commandBoxEntries.FirstOrDefault(e => e.Name == entry.Name);
+                var oldEntry = this.commandBarEntries.FirstOrDefault(e => e.Name == entry.Name);
                 if (oldEntry != null)
                 {
                     if (oldEntry.Kind > entry.Kind) return;
-                    this.commandBoxEntries.Remove(oldEntry);
+                    this.commandBarEntries.Remove(oldEntry);
                 }
 
-                this.commandBoxEntries.Add(entry);
+                this.commandBarEntries.Add(entry);
                 this.commandListBox.Items.MoveCurrentToFirst();
             });
         }
