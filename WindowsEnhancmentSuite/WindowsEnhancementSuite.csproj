@@ -72,6 +72,7 @@
     <Compile Include="Enums\CommandEntryKind.cs" />
     <Compile Include="Extensions\SizeExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\StructExtensions.cs" />
     <Compile Include="Helper\FormPositionHelper.cs" />
     <Compile Include="Helper\MD5Helper.cs" />
     <Compile Include="Helper\RankingHelper.cs" />

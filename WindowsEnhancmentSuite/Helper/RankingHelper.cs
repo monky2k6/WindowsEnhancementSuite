@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Properties;
 using WindowsEnhancementSuite.ValueObjects;
 using Newtonsoft.Json;
@@ -59,7 +60,7 @@ namespace WindowsEnhancementSuite.Helper
 
         private static uint getFibonacciRecurrence(uint value)
         {
-            if ((value == 0) || (value == 1)) return value;
+            if (value.In(0U, 1U)) return value;
             return getFibonacciRecurrence(value - 1) + getFibonacciRecurrence(value - 2);
         }
     }

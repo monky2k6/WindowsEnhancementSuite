@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Properties;
 
 namespace WindowsEnhancementSuite.Forms
@@ -115,7 +116,7 @@ namespace WindowsEnhancementSuite.Forms
             }
 
             var text = e.KeyCode.ToString();
-            if (e.KeyCode == Keys.ControlKey || e.KeyCode == Keys.ShiftKey)
+            if (e.KeyCode.In(Keys.ControlKey, Keys.ShiftKey))
             {
                 text = "";
             }
