@@ -29,7 +29,7 @@ namespace WindowsEnhancementSuite.Services
     {
         // Required constants
         private const string COMMANDS_REGEX = @"[^a-zA-Z0-9 ()!+_-]";
-        private const string FILES_REGEX = @"[^a-zA-Z0-9 \\()!+:_-]";
+        private const string FILES_REGEX = @"[^a-zA-Z0-9 \\()!+:_.-]";
 
         // WPF Controls
         private readonly Window commandBarWindow;
