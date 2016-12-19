@@ -20,7 +20,7 @@ namespace WindowsEnhancementSuite.ValueObjects
 
         public CommandBarEntry(string command, CommandEntryKind kind, string name = "")
         {
-            this.Command = command;            
+            this.Command = command;
             this.Kind = kind;
             this.Hash = command.GetMd5Hash();
             this.Name = StringHelper.GetFirstNonEmpty(name, command);

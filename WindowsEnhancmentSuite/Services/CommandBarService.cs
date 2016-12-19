@@ -29,7 +29,7 @@ namespace WindowsEnhancementSuite.Services
     {
         // Required constants
         private const string COMMANDS_REGEX = @"[^a-zA-Z0-9 ()!+_-]";
-        private const string FILES_REGEX = @"[^a-zA-Z0-9 \\()!+:_.-]";
+        private const string FILES_REGEX = @"[^a-zA-Z0-9 \\'öäüÖÄÜ()!+:_.-]";
 
         // WPF Controls
         private readonly Window commandBarWindow;
@@ -42,7 +42,6 @@ namespace WindowsEnhancementSuite.Services
         private readonly ConcurrentBag<CommandBarEntry> histories;
         private CancellationTokenSource cancellationTokenSource;
         private string searchText;
-        private string searchUserParameter;
 
         public CommandBarService(CommandBarOptions options)
         {
@@ -98,6 +97,7 @@ namespace WindowsEnhancementSuite.Services
             setCommandBarPosition();
             commandBarWindow.Show();
             commandBarWindow.Activate();
+            commandBarWindow.Focus();
 
             return true;
         }
@@ -148,7 +148,7 @@ namespace WindowsEnhancementSuite.Services
                 {
                     this.cancellationTokenSource.Cancel();
                     var commandEntry = (commandListBox.Items.CurrentItem as CommandBarEntry) ??
-                                       new CommandBarEntry(searchText + searchUserParameter, CommandEntryKind.History);
+                                       new CommandBarEntry(searchText, CommandEntryKind.History);
 
                     executeCommand(commandEntry, keyEventArgs.KeyboardDevice.Modifiers == ModifierKeys.Shift);
                 }
@@ -194,7 +194,7 @@ namespace WindowsEnhancementSuite.Services
             Task.Run(() =>
             {
                 if (entry.Kind == CommandEntryKind.History && histories.All(e => e.Command != entry.Command)) histories.Add(entry);
-                if (entry.Kind.In(CommandEntryKind.Directory, CommandEntryKind.TopDirectory, CommandEntryKind.Explorer)) searchUserParameter = "";
+
                 RankingHelper.IncreaseRank(entry);
 
                 try
@@ -208,11 +208,12 @@ namespace WindowsEnhancementSuite.Services
                     if (asAdmin)
                     {
                         // Start as Admin
-                        UacAssistService.RunAsAdmin(entry.Command, searchUserParameter.Trim());
+                        UacAssistService.RunAsAdmin(entry.Command, String.Empty);
                         return;
                     }
 
-                    Process.Start(new ProcessStartInfo(entry.Command, searchUserParameter.Trim()));
+                    var processStartInfo = new ProcessStartInfo(entry.Command);
+                    Process.Start(processStartInfo);
                 }
                 catch (Win32Exception)
                 {
@@ -231,15 +232,8 @@ namespace WindowsEnhancementSuite.Services
             // Clear results and parameters
             this.commandBarEntries.Clear();
             searchText = commandTextBox.Text.Trim();
-            searchUserParameter = String.Empty;
 
             if (String.IsNullOrWhiteSpace(searchText)) return;
-            if (searchText.Contains(" "))
-            {
-                ushort space = Convert.ToUInt16(searchText.IndexOf(" "));
-                searchUserParameter = searchText.Substring(space);
-                searchText = searchText.Substring(0, space);
-            }
 
             // Start individual searches, each starts a new Task
             searchCommandHistory(cancelToken);
@@ -262,7 +256,7 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                string searchTerm = String.Concat(searchText, searchUserParameter).ToLower();
+                string searchTerm = searchText.ToLower();
                 Parallel.ForEach(histories, parallelOptions, entry =>
                 {
                     if (entry.Command.ToLower().Contains(searchTerm)) addCommandBarEntry(entry);
@@ -281,7 +275,7 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                string searchTerm = String.Concat(searchText, searchUserParameter).ToLower();
+                string searchTerm = searchText.ToLower();
                 Parallel.ForEach(commandBarOptions.ExplorerHistoryFunc(), parallelOptions, path =>
                 {
                     if (path.ToLower().Contains(searchTerm)) addCommandBarEntry(new CommandBarEntry(path, CommandEntryKind.Explorer));
@@ -301,7 +295,7 @@ namespace WindowsEnhancementSuite.Services
                 try
                 {
                     var dataTable = new DataTable();
-                    var evalValue = dataTable.Compute(searchText + searchUserParameter, "");
+                    var evalValue = dataTable.Compute(searchText, "");
                     if (String.IsNullOrWhiteSpace(evalValue.ToString())) return;
                     this.addCommandBarEntry(new CommandBarEntry("", CommandEntryKind.Evaluation, evalValue.ToString()));
                 }
@@ -320,7 +314,7 @@ namespace WindowsEnhancementSuite.Services
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
-                string searchTerm = String.Concat(searchText, searchUserParameter).ToLower();
+                string searchTerm = searchText.ToLower();
                 Parallel.ForEach(WindowsMethods.GetOpenWindows(), paralellOptions, window =>
                 {
                     string pointer = window.Value.ToInt32().ToString();
@@ -402,7 +396,7 @@ namespace WindowsEnhancementSuite.Services
         {
             Task.Run(() =>
             {
-                string searchPath = Environment.ExpandEnvironmentVariables(searchText + searchUserParameter);
+                string searchPath = Environment.ExpandEnvironmentVariables(searchText);
                 searchPath = Regex.Replace(searchPath, FILES_REGEX, "", RegexOptions.Compiled);
                 if (String.IsNullOrWhiteSpace(searchPath)) return;
 
