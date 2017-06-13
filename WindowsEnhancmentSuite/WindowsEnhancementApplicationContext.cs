@@ -19,6 +19,7 @@ namespace WindowsEnhancementSuite
         private readonly FileAndImageViewService fileAndImageViewService;
         private readonly ExplorerBrowserService explorerBrowserService;
         private readonly CommandBarService commandBarService;
+        private readonly ApplicationBarService applicationBarService;
 
         private readonly KeyboardInterceptor keyboadHook;
 
@@ -38,6 +39,7 @@ namespace WindowsEnhancementSuite
             this.fileCreateService = new FileCreateService();
             this.fileAndImageViewService = new FileAndImageViewService();
             this.explorerBrowserService = new ExplorerBrowserService();
+            this.applicationBarService = new ApplicationBarService();
 
             // Initialize CommandBarService
             RankingHelper.Initialize();

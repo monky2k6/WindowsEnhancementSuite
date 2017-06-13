@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using WindowsEnhancementSuite.Bases;
 using WindowsEnhancementSuite.Extensions;
 using WindowsEnhancementSuite.Helper;
 using WindowsEnhancementSuite.Helper.Windows;
@@ -51,7 +52,7 @@ namespace WindowsEnhancementSuite.Services
             return true;
         }
 
-        private sealed class WatchForm : Form
+        private sealed class WatchForm : DraggableBaseForm
         {
             private const string NODE_TYPE_EXECUTABLE = "Executable";
             private const string NODE_TYPE_FOLDER = "Folder";
