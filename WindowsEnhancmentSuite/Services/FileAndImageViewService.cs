@@ -28,7 +28,8 @@ namespace WindowsEnhancementSuite.Services
         {
             if (!Clipboard.ContainsText()) return false;
             string clipboard = Clipboard.GetText();            
-            ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(clipboard)));
+            var form = new WatchForm(clipboard);
+            form.Show();
 
             return true;
         }
@@ -38,7 +39,8 @@ namespace WindowsEnhancementSuite.Services
             if (!Clipboard.ContainsImage()) return false;
             var imageData = Clipboard.GetImage();
             if (imageData == null) return false;
-            ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(imageData)));
+            var form = new WatchForm(imageData);
+            form.Show();
 
             return true;
         }
@@ -47,7 +49,8 @@ namespace WindowsEnhancementSuite.Services
         {
             if (!Clipboard.ContainsFileDropList()) return false;
             var fileList = Clipboard.GetFileDropList();
-            ThreadHelper.RunAsStaThread(() => Application.Run(new WatchForm(fileList)));
+            var form = new WatchForm(fileList);
+            form.Show();
 
             return true;
         }
