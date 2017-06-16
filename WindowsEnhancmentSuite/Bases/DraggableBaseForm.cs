@@ -1,85 +1,42 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
+using WindowsEnhancementSuite.Forms;
+using WindowsEnhancementSuite.Services;
 
 namespace WindowsEnhancementSuite.Bases
 {
-    public class DraggableBaseForm : Form, IDataObject
+    public class DraggableBaseForm : Form
     {
-        public const string DRAG_FORMAT = "draggableForm";
-        public const string DRAG_TYPE_TEXT = "draggableFormText";
-        public const string DRAG_TYPE_IMAGE = "draggableFormImage";
-        public const string DRAG_TYPE_FILELIST = "draggableFormFilelist";
-
-        protected readonly Control dragControl;
-        public object GetData(string format, bool autoConvert)
+        public Rectangle? ResizeValues { get; set; }
+        public ApplicationBarForm AttachForm { get; set; }
+        public bool IsAttached
         {
-            if (format == DRAG_FORMAT)
+            get { return (this.AttachForm != null); }
+        }
+        public bool IsResizing { get; protected set; }
+
+        protected override void OnResizeBegin(EventArgs e)
+        {
+            base.OnResizeBegin(e);
+            this.IsResizing = true;
+            ApplicationBarService.DragForm = this;
+        }
+
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            base.OnResizeEnd(e);
+            this.IsResizing = false;
+            ApplicationBarService.DragForm = null;
+
+            if (this.ResizeValues.HasValue && this.IsAttached)
             {
-                if (autoConvert)
-                    return dragControl;
-                else
-                    return this;
+                this.Top = ResizeValues.Value.Top;
+                this.Left = ResizeValues.Value.Left;
+                this.Width = ResizeValues.Value.Width;
+
+                this.ResizeValues = null;
             }
-
-            return null;
-        }
-
-        public object GetData(string format)
-        {
-            return this.GetData(format, true);
-        }
-
-        public object GetData(Type format)
-        {
-            return this.GetData(format.ToString());
-        }
-
-        public bool GetDataPresent(string format, bool autoConvert)
-        {
-            if (autoConvert)
-                return (format == DRAG_FORMAT && this.dragControl != null);
-            else
-                return (format == DRAG_FORMAT);
-        }
-
-        public bool GetDataPresent(string format)
-        {
-            return this.GetDataPresent(format, true);
-        }
-
-        public bool GetDataPresent(Type format)
-        {
-            return this.GetDataPresent(format.ToString());
-        }
-
-        public string[] GetFormats(bool autoConvert)
-        {
-            return new string[] { DRAG_FORMAT };
-        }
-
-        public string[] GetFormats()
-        {
-            return this.GetFormats(true);
-        }
-
-        public void SetData(string format, bool autoConvert, object data)
-        {
-            return;
-        }
-
-        public void SetData(string format, object data)
-        {
-            return;
-        }
-
-        public void SetData(Type format, object data)
-        {
-            return;
-        }
-
-        public void SetData(object data)
-        {
-            return;
         }
     }
 }

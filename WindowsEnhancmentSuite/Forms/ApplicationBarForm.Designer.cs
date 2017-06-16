@@ -34,18 +34,17 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ApplicationBarForm";
-            this.Opacity = 0.4D;
+            this.Opacity = 0.8D;
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.ApplicationBarForm_DragDrop);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.ApplicationBarForm_DragEnter);
-            this.DragOver += new System.Windows.Forms.DragEventHandler(this.ApplicationBarForm_DragOver);
-            this.MouseLeave += new System.EventHandler(this.ApplicationBarForm_MouseLeave);
             this.ResumeLayout(false);
 
         }

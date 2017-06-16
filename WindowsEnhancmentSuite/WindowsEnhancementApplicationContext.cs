@@ -40,7 +40,7 @@ namespace WindowsEnhancementSuite
             this.fileAndImageViewService = new FileAndImageViewService();
             this.explorerBrowserService = new ExplorerBrowserService();
             this.applicationBarService = new ApplicationBarService();
-
+            
             // Initialize CommandBarService
             RankingHelper.Initialize();
             var commandBarOptions = new CommandBarOptions
@@ -139,6 +139,7 @@ namespace WindowsEnhancementSuite
             // Deactivate KeyHooks
             this.notifyIcon.Visible = false;
             this.keyboadHook.StopCapturing();
+            this.applicationBarService.StopCapture();
 
             // Convert and save settings
             Settings.Default.CommandBarHistories.Clear();
