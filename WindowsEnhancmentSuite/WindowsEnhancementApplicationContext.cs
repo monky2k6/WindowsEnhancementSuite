@@ -139,7 +139,7 @@ namespace WindowsEnhancementSuite
             // Deactivate KeyHooks
             this.notifyIcon.Visible = false;
             this.keyboadHook.StopCapturing();
-            this.applicationBarService.StopCapture();
+            this.applicationBarService.Dispose();
 
             // Convert and save settings
             Settings.Default.CommandBarHistories.Clear();

@@ -10,16 +10,17 @@ using WindowsEnhancementSuite.Forms;
 
 namespace WindowsEnhancementSuite.Services
 {
-    public class ApplicationBarService
+    public class ApplicationBarService : IDisposable
     {
         public static DraggableBaseForm DragForm;
-
+        
         private readonly IKeyboardMouseEvents hooks;
         private readonly Rect hoverArea;
         private readonly ApplicationBarForm barForm;
         private readonly List<DraggableBaseForm> barForms;
 
         private Rectangle barFormHoverArea;
+        private bool isBarResizing;
 
         public ApplicationBarService()
         {
@@ -41,7 +42,10 @@ namespace WindowsEnhancementSuite.Services
             barForm.Location = new System.Drawing.Point((int)screenBounds.Left, (int)screenBounds.Top);
             barForm.Width = 250; // todo: make it adjustable
             barForm.Height = (screenBounds.Bottom - screenBounds.Top);
-            
+            barForm.MinimumSize = new System.Drawing.Size(250, barForm.Height);
+            barForm.MaximumSize = new System.Drawing.Size(screenBounds.Width / 2, barForm.Height);
+
+            barForm.ResizeBegin += barForm_ResizeBegin;
             barForm.ResizeEnd += barForm_ResizeEnd;
             barForm.VisibleChanged += barForm_VisibleChanged;
             barForm.Hide();
@@ -50,20 +54,38 @@ namespace WindowsEnhancementSuite.Services
             this.barForm_ResizeEnd(barForm, EventArgs.Empty);
         }
 
-        public void StopCapture()
+        public void Dispose()
         {
-            barForms.Clear();
+            lock (barForms)
+            {
+                foreach (var f in barForms)
+                {
+                    f.Close();
+                    f.Dispose();
+                }
+                barForms.Clear();
+            }
+
             hooks.MouseMove -= mouseMoveHook;
             hooks.MouseUp -= mouseUpHook;
             hooks.Dispose();
         }
-        
+
+        public void RemoveForm(DraggableBaseForm form)
+        {
+            form.AttachService = null;
+            barForms.Remove(form);
+            this.sortForms();
+        }
+
         private void doFormDrop()
         {
-            DragForm.AttachForm = barForm;
-
+            DragForm.AttachService = this;
+            
+            DragForm.ShowIcon = false;
             DragForm.FormBorderStyle = FormBorderStyle.FixedToolWindow;
             DragForm.TopMost = true;
+            DragForm.OriginalSize = new Tuple<int, int>(DragForm.Width, DragForm.Height);
 
             barForms.Add(DragForm);
             DragForm = null;
@@ -73,9 +95,11 @@ namespace WindowsEnhancementSuite.Services
 
         private void doFormDetach()
         {
-            DragForm.AttachForm = null;
+            DragForm.AttachService = null;
             DragForm.FormBorderStyle = FormBorderStyle.Sizable;
+            DragForm.Icon = DragForm.FormIcon;
             DragForm.ShowIcon = true;
+            DragForm.Icon = DragForm.FormIcon;
 
             barForms.Remove(DragForm);
             this.sortForms();
@@ -87,21 +111,29 @@ namespace WindowsEnhancementSuite.Services
             foreach (var f in barForms.OrderBy(e => e.Top))
             {
                 if (f.IsResizing)
-                    f.ResizeValues = new Rectangle(0, formHeight, barForm.Width, f.Height);
+                    f.ResizeValues = new Rectangle(0, formHeight, barForm.Width - ApplicationBarForm.DRAG_SPACE, f.Height);
                 else
                 {
                     f.Top = formHeight;
                     f.Left = 0;
-                    f.Width = barForm.Width;
+                    f.Width = barForm.Width - ApplicationBarForm.DRAG_SPACE;
                 }
                 formHeight += f.Height + 5;
             }
+        }
+
+        private void barForm_ResizeBegin(object sender, EventArgs e)
+        {
+            this.isBarResizing = true;
         }
 
         private void barForm_ResizeEnd(object sender, EventArgs e)
         {
             this.barFormHoverArea = barForm.Bounds;
             this.barFormHoverArea.Inflate(1, 1);
+            this.sortForms();
+
+            this.isBarResizing = false;
         }
 
         private void barForm_VisibleChanged(object sender, EventArgs e)
@@ -110,7 +142,8 @@ namespace WindowsEnhancementSuite.Services
             {
                 if (DragForm == f) continue;
                 f.Visible = barForm.Visible;
-                f.BringToFront();
+                if (f.Visible)
+                    f.BringToFront();
             }
         }
 
@@ -121,23 +154,26 @@ namespace WindowsEnhancementSuite.Services
                     barForm.Show();
 
             if (barForm.Visible)
-                if (Screen.GetWorkingArea(e.Location).Contains(e.Location))
-                    if (!this.barFormHoverArea.Contains(e.X, e.Y))
-                        barForm.Hide();
+                if (!this.isBarResizing)
+                    if (Screen.GetWorkingArea(e.Location).Contains(e.Location))
+                        if (!this.barFormHoverArea.Contains(e.X, e.Y))
+                            barForm.Hide();
         }
 
         private void mouseUpHook(object sender, MouseEventArgs e)
         {
             if (DragForm != null)
                 if (e.Button == MouseButtons.Left)
-                    if (barForm.Bounds.Contains(e.X, e.Y))
-                        if (DragForm.IsAttached)
-                            sortForms();
-                        else
-                            doFormDrop();
+                    if (barForm.Visible)
+                    {
+                        if (barForm.Bounds.Contains(e.X, e.Y))
+                            if (DragForm.IsAttached)
+                                sortForms();
+                            else
+                                doFormDrop();
+                    }
                     else if (DragForm.IsAttached)
                         doFormDetach();
-
         }
     }
 }

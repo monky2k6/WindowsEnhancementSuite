@@ -98,6 +98,12 @@ namespace WindowsEnhancementSuite.Helper.Windows
             return (message.Msg == WM_SYSCOMMAND && (int) message.WParam == id);
         }
 
+        public static void DoDragDrop(IntPtr handle)
+        {
+            ReleaseCapture();
+            SendMessage(handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+        }
+
         private static bool isOnDesktop(IntPtr handle)
         {
             var processes = Process.GetProcesses();
@@ -110,6 +116,8 @@ namespace WindowsEnhancementSuite.Helper.Windows
         private const int MF_SEPARATOR = 0x800;
         private const int MF_CHECKED = 0x8;
         private const int MF_UNCHECKED = 0x0;
+        private const int WM_NCLBUTTONDOWN = 0xA1;
+        private const int HT_CAPTION = 0x2;
 
         private delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
@@ -148,6 +156,12 @@ namespace WindowsEnhancementSuite.Helper.Windows
 
         [DllImport("USER32.DLL")]
         private static extern IntPtr GetShellWindow();
+
+        [DllImport("USER32.DLL")]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [DllImport("USER32.DLL")]
+        private static extern bool ReleaseCapture();
         #endregion
     }
 }

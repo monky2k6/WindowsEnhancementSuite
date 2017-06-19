@@ -1,9 +1,13 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace WindowsEnhancementSuite.Forms
 {
     public partial class ApplicationBarForm : Form
     {
+        public const byte DRAG_SPACE = 10;
+
         public ApplicationBarForm()
         {
             InitializeComponent();
@@ -21,6 +25,38 @@ namespace WindowsEnhancementSuite.Forms
 
                 return createParams;
             }
+        }
+        
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            const int WM_NCHITTEST = 0x84;
+            if (m.Msg == WM_NCHITTEST)
+            {
+                var mousePos = new Point(m.LParam.ToInt32());
+                mousePos = this.PointToClient(mousePos);
+
+                if (mousePos.X >= this.Width - DRAG_SPACE)
+                    m.Result = new IntPtr((int)HitTest.Right);
+            }
+        }
+
+        protected enum HitTest
+        {
+            Caption = -2,
+            Transparent = -1,
+            Nowhere = 0,
+            Client = 1,
+            Left = 10,
+            Right = 11,
+            Top = 12,
+            TopLeft = 13,
+            TopRight = 14,
+            Bottom = 15,
+            BottomLeft = 16,
+            BottomRight = 17,
+            Border = 18
         }
     }
 }
