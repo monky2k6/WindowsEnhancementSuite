@@ -102,12 +102,7 @@
     <Compile Include="Extensions\SizeExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\StructExtensions.cs" />
-    <Compile Include="Forms\ApplicationBarForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ApplicationBarForm.Designer.cs">
-      <DependentUpon>ApplicationBarForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Extensions\WindowExtensions.cs" />
     <Compile Include="Helper\FormPositionHelper.cs" />
     <Compile Include="Helper\MD5Helper.cs" />
     <Compile Include="Helper\RankingHelper.cs" />
@@ -135,9 +130,6 @@
     <Compile Include="ValueObjects\CommandBarRank.cs" />
     <Compile Include="ValueObjects\CommandBarOptions.cs" />
     <Compile Include="WindowsEnhancementApplicationContext.cs" />
-    <EmbeddedResource Include="Forms\ApplicationBarForm.resx">
-      <DependentUpon>ApplicationBarForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -192,7 +184,12 @@
     <None Include="FodyWeavers.xml" />
     <Content Include="WES.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\ApplicationBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\CommandBar.xaml">
       <Generator>MSBuild:Compile</Generator>
